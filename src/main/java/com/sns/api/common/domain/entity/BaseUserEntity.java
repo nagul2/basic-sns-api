@@ -1,4 +1,4 @@
-package com.sns.api.common.entity;
+package com.sns.api.common.domain.entity;
 
 import com.sns.api.users.domain.entity.Users;
 import jakarta.persistence.*;

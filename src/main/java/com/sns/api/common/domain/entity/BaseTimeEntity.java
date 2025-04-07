@@ -1,4 +1,4 @@
-package com.sns.api.common.entity;
+package com.sns.api.common.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -16,9 +16,9 @@ abstract public class BaseTimeEntity {
     // 생성 시 자동 저장
     @CreatedDate
     @Column(nullable = false)
-    private LocalDateTime createdDate;
+    private LocalDateTime createdAt;
 
     // 수정 시 자동 저장
     @LastModifiedDate
-    private LocalDateTime modifiedDate;
+    private LocalDateTime modifiedAt;
 }

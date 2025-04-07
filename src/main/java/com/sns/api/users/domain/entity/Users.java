@@ -1,7 +1,7 @@
 package com.sns.api.users.domain.entity;
 
 
-import com.sns.api.common.entity.BaseTimeEntity;
+import com.sns.api.common.domain.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 
