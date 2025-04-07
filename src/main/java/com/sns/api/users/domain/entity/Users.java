@@ -2,6 +2,7 @@ package com.sns.api.users.domain.entity;
 
 
 import com.sns.api.common.domain.entity.BaseTimeEntity;
+import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.SQLRestriction;
@@ -28,6 +29,10 @@ public class Users extends BaseTimeEntity {
     private String password; // 비밀번호
 
     @Column
+    @Enumerated(EnumType.STRING)
+    private MBTI mbti;
+
+    @Column
     private LocalDate birth; // 생년월일
 
     @Column(nullable = false)
@@ -36,11 +41,19 @@ public class Users extends BaseTimeEntity {
     public Users() {
     }
 
-    public Users (String email, String username, String password, String birth) {
+    public Users (String email, String username, String password, String birth, String mbti) {
         this.email = email;
         this.username = username;
         this.password = password;
-        this.birth = LocalDate.parse(birth);
+
+        if (StringUtils.isNotEmpty(birth)) { // birth 가 입력되었을 경우
+            this.birth = LocalDate.parse(birth);
+        }
+
+        if (StringUtils.isNotEmpty(mbti)) { // mbti 가 입력되었을 경우
+            this.mbti = MBTI.valueOf(mbti.toUpperCase());
+        }
+
         this.isDeleted = false;
     }
 }

@@ -8,9 +8,9 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class UserBaseDto {
 
-    private Long userId;
+    private Long userId; // user Id
 
-    private String username;
+    private String username; // 이름
 
     public static UserBaseDto fromEntity(Users entity) {
         return UserBaseDto.builder()

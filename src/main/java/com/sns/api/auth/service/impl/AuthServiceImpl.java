@@ -35,7 +35,7 @@ public class AuthServiceImpl implements AuthService {
         String encodePassword = passwordEncoder.encode(dto.getPassword()); // 비밀번호 암호화
 
         // User 생성
-        Users user = new Users(email, dto.getUsername(), encodePassword, dto.getBirth());
+        Users user = new Users(email, dto.getUsername(), encodePassword, dto.getBirth(), dto.getMbti());
 
         // User 저장
         Users saveUser = usersRepository.save(user);

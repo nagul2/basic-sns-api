@@ -64,7 +64,7 @@ public class ExceptionAdvice {
 		// 404 상태로 응답 생성
 		return ResponseEntity
 				.status(HttpStatus.NOT_FOUND)
-				.body(BaseResponse.error(ResultCode.NOT_FOUND, e));
+				.body(BaseResponse.error(ResultCode.NOT_FOUND, ResultCode.NOT_FOUND.getDefaultMessage()));
 	}
 
 	/**
@@ -127,7 +127,7 @@ public class ExceptionAdvice {
 		// 일반적인 실패 상태 코드로 응답 생성
 		return ResponseEntity
 				.status(HttpStatus.INTERNAL_SERVER_ERROR)
-				.body(BaseResponse.error(ResultCode.FAIL, e));
+				.body(BaseResponse.error(ResultCode.FAIL, ResultCode.FAIL.getDefaultMessage()));
 	}
 
 	/**
