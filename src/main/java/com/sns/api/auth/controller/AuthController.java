@@ -39,4 +39,13 @@ public class AuthController {
         session.setAttribute(Const.LOGIN_USER, userBaseDto);
         return BaseResponse.success(userBaseDto, ResultCode.OK);
     }
+
+    @PostMapping("/logout")
+    public BaseResponse<Object> logout(HttpServletRequest request) {
+        HttpSession session = request.getSession(false); // 미 로그인 시 null 반환
+        if (session != null) {
+            session.invalidate(); // 해당 세션(데이터)을 삭제한다.
+        }
+        return BaseResponse.success(null, ResultCode.NO_CONTENT);
+    }
 }
