@@ -7,6 +7,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import java.util.Date;
 import java.util.TimeZone;
@@ -18,6 +19,7 @@ import java.util.TimeZone;
 		value = {"classpath:config/application.yml", "classpath:config/${spring.profiles.active:local}/application.yml"} ,
 		factory = YamlPropertySourceFactory.class
 )
+@EnableJpaAuditing
 public class SnsApplication {
 
 	static {

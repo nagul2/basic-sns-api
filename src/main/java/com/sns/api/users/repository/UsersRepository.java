@@ -1,4 +1,7 @@
 package com.sns.api.users.repository;
 
-public interface UsersRepository {
+import com.sns.api.users.domain.entity.Users;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UsersRepository extends JpaRepository<Users, Long> {
 }
