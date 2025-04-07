@@ -1,7 +1,9 @@
 package com.sns.api.auth.service.impl;
 
+import com.sns.api.auth.domain.dto.LoginRequestDto;
 import com.sns.api.auth.domain.dto.SignupRequestDto;
 import com.sns.api.auth.service.AuthService;
+import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.users.domain.dto.UsersResponseDto;
 import com.sns.api.users.domain.entity.Users;
 import com.sns.api.users.repository.UsersRepository;
@@ -43,5 +45,17 @@ public class AuthServiceImpl implements AuthService {
         }
 
         return UsersResponseDto.fromEntity(saveUser);
+    }
+
+    @Override
+    public UserBaseDto login(LoginRequestDto dto) {
+        Users findUser = usersRepository.findByEmail(dto.getEmail()) // email로 User 조회
+                .orElseThrow(() -> new CustomException(ResultCode.LOGIN_FAILED)); // 없을 경우 throw
+
+        if (!passwordEncoder.matches(dto.getPassword(), findUser.getPassword())) { // 비밀번호 검증
+            throw new CustomException(ResultCode.LOGIN_FAILED); // 비밀번호 검증 실패 시 throw
+        }
+
+        return UserBaseDto.fromEntity(findUser); // UserBaseDto 로 반환
     }
 }
