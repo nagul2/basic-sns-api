@@ -83,7 +83,7 @@ public class ExceptionAdvice {
 		// 데이터베이스 실패 관련 상태 코드로 응답 생성
 		return ResponseEntity
 				.status(HttpStatus.INTERNAL_SERVER_ERROR)
-				.body(BaseResponse.error(ResultCode.DB_FAIL, e));
+				.body(BaseResponse.error(ResultCode.DB_FAIL, ResultCode.DB_FAIL.getDefaultMessage()));
 	}
 
 	/**

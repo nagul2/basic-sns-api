@@ -1,0 +1,21 @@
+package com.sns.api.common.domain.dto;
+
+import com.sns.api.users.domain.entity.Users;
+import lombok.Getter;
+import lombok.experimental.SuperBuilder;
+
+@Getter
+@SuperBuilder
+public class UserBaseDto {
+
+    private Long userId;
+
+    private String username;
+
+    public static UserBaseDto fromEntity(Users entity) {
+        return UserBaseDto.builder()
+                .userId(entity.getId())
+                .username(entity.getUsername())
+                .build();
+    }
+}

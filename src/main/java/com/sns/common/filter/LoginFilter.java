@@ -22,7 +22,7 @@ import java.io.IOException;
 public class LoginFilter implements Filter {
 
     // 인증을 하지 않아도 되는 URL 패턴 목록 (화이트 리스트)
-    private static final String[] WHITE_LIST = {"/", "/api/auth/**"};
+    private static final String[] WHITE_LIST = {"/", "/auth/**"};
 
     /**
      * 모든 요청에 대해 로그인 여부를 체크하는 필터 메소드.

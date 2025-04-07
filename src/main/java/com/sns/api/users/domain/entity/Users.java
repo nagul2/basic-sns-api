@@ -32,4 +32,15 @@ public class Users extends BaseTimeEntity {
 
     @Column(nullable = false)
     private Boolean isDeleted; // 삭제여부
+
+    public Users() {
+    }
+
+    public Users (String email, String username, String password, String birth) {
+        this.email = email;
+        this.username = username;
+        this.password = password;
+        this.birth = LocalDate.parse(birth);
+        this.isDeleted = false;
+    }
 }

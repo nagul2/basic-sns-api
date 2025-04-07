@@ -1,6 +1,7 @@
 package com.sns.common.jpa;
 
-import com.sns.api.users.domain.dto.UsersDto;
+import com.sns.api.common.domain.dto.UserBaseDto;
+import com.sns.api.users.domain.dto.UsersResponseDto;
 import com.sns.api.users.domain.entity.Users;
 import com.sns.api.users.repository.UsersRepository;
 import com.sns.common.component.Const;
@@ -23,11 +24,11 @@ public class AuditorAwareImpl implements AuditorAware<Users> {
 
     @Override
     public Optional<Users> getCurrentAuditor() {
-        UsersDto userDto = (UsersDto) httpSession.getAttribute(Const.LOGIN_USER);
+        UserBaseDto userDto = (UserBaseDto) httpSession.getAttribute(Const.LOGIN_USER);
         if (userDto == null)
             return null;
 
-        Users user = usersRepository.findById(userDto.getId())
+        Users user = usersRepository.findById(userDto.getUserId())
                 .orElseThrow(() -> new CustomException(ResultCode.AUTHENTICATION_FAILED));
 
         return Optional.ofNullable(user);
