@@ -27,7 +27,7 @@ public class AuthServiceImpl implements AuthService {
     public UsersResponseDto signup(SignupRequestDto dto) {
         String email = dto.getEmail();
 
-        Optional<Users> userOpt = usersRepository.findByEmail(email); // 이메일 존재 여부 조회
+        Optional<Users> userOpt = usersRepository.findByEmailIncludeDeleted(email); // 이메일 존재 여부 조회
         if (userOpt.isPresent()) {
             throw new CustomException(ResultCode.VALID_FAIL, "이미 사용 중인 이메일입니다.");
         }
