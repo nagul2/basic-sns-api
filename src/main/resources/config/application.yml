@@ -1,0 +1,28 @@
+spring:
+  application.name: sns
+  config:
+    import: optional:classpath:config/${spring.profiles.active:local}/application.yml
+  main:
+    allow-bean-definition-overriding: true
+
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+    session:
+      timeout: 1800
+      tracking-modes: cookie
+
+  forward-headers-strategy: framework
+  error:
+    include-exception: true
+    include-stacktrace: always
+    whitelabel.enabled: true
+  port: 8080
+
+logging.config: classpath:config/logback-spring.xml
+
+log:
+  level: debug

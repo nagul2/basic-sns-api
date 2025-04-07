@@ -1,0 +1,5 @@
+package com.sns.common.component;
+
+public interface Const {
+    String LOGIN_USER = "loginUser";
+}

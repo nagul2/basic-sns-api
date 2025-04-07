@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- configuration file for LogBack (slf4J implementation)
+See here for more details: http://gordondickens.com/wordpress/2013/03/27/sawing-through-the-java-loggers/ -->
+<configuration>
+  <springProperty scope="context" name="PROJECT_NAME" source="spring.application.name"/>
+  <springProperty scope="context" name="LOG_LEVEL" source="log.level"/>
+
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <charset>UTF-8</charset>
+      <pattern>%yellow(%d{yyyy-MM-dd HH:mm:ss}) %highlight(%-5level) %cyan(%logger{36}) - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="org.springframework" level="${LOG_LEVEL}" additivity="false">
+    <appender-ref ref="CONSOLE"/>
+  </logger>
+
+  <!-- Hikari Debug Log -->
+  <logger name="com.zaxxer.hikari" level="off" additivity="false">
+    <appender-ref ref="CONSOLE"/>
+  </logger>
+
+  <!-- SQL Debug Log -->
+  <logger name="jdbc.connection" level="off"/>
+  <logger name="jdbc.audit" level="off"/>
+  <logger name="jdbc.sqltiming" level="off"/>
+  <logger name="jdbc.resultset" level="off"/>
+  <logger name="jdbc.resultsettable" level="${LOG_LEVEL}" additivity="false">
+    <appender-ref ref="CONSOLE"/>
+  </logger>
+  <logger name="jdbc.sqlonly" level="${LOG_LEVEL}" additivity="false">
+    <appender-ref ref="CONSOLE"/>
+  </logger>
+  <logger name="com.sns" level="${LOG_LEVEL}" additivity="false">
+    <appender-ref ref="CONSOLE"/>
+  </logger>
+
+  <root level="${LOG_LEVEL}">
+    <appender-ref ref="CONSOLE"/>
+  </root>
+</configuration>
+
