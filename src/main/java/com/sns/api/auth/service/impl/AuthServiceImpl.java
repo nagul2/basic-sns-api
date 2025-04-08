@@ -12,6 +12,7 @@ import com.sns.common.config.PasswordEncoder;
 import com.sns.common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -24,6 +25,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional
     public UsersResponseDto signup(SignupRequestDto dto) {
         String email = dto.getEmail();
 
@@ -48,6 +50,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserBaseDto login(LoginRequestDto dto) {
         Users findUser = usersRepository.findByEmail(dto.getEmail()) // email로 User 조회
                 .orElseThrow(() -> new CustomException(ResultCode.LOGIN_FAILED)); // 없을 경우 throw
