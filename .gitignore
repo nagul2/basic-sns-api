@@ -40,6 +40,7 @@ out/
 src/main/resources/config/jm/
 src/main/resources/config/ncookie
 src/main/resources/config/yb/
+src/main/resources/config/ng/
 
 db/mysql/data
 docker-compose.yml
