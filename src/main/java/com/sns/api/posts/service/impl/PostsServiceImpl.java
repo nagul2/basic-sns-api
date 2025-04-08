@@ -2,6 +2,7 @@ package com.sns.api.posts.service.impl;
 
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.posts.domain.dto.request.PostCreateRequestDto;
+import com.sns.api.posts.domain.dto.request.PostSearchRequestDto;
 import com.sns.api.posts.domain.dto.request.PostUpdateRequestDto;
 import com.sns.api.posts.domain.dto.response.PostResponseDto;
 import com.sns.api.posts.domain.entity.Posts;
@@ -17,6 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Service
@@ -56,8 +59,20 @@ public class PostsServiceImpl implements PostsService {
      */
     @Transactional(readOnly = true)
     @Override
-    public Page<PostResponseDto> getPosts(Pageable pageable) {
+    public Page<PostResponseDto> getPosts(Pageable pageable, PostSearchRequestDto searchRequestDto) {
 
+        // 기간별 검색
+        // startDate, endDate 모두 null 값이 아니고, startDate <= endDate 이어야 기간별 검색 쿼리를 수행
+        if (searchRequestDto.hasValidValue()) {
+            Page<Posts> findPosts = postsRepository.findPostsByCreatedAt(
+                    pageable,
+                    searchRequestDto.getStartDate(),
+                    searchRequestDto.getEndDate()
+            );
+            return findPosts.map(PostResponseDto::fromEntity);
+        }
+        
+        // 일반 검색
         return postsRepository.findAll(pageable).map(PostResponseDto::fromEntity);
     }
 
