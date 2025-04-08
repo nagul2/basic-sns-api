@@ -1,6 +1,5 @@
 package com.sns.api.friends.domain.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.friends.domain.entity.Friends;
 import com.sns.api.friends.domain.entity.FriendsStatus;
@@ -11,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class FriendsResponseDto {
+public class SendFriendsResponseDto {
 
     private final Long requestId;
     private final UserBaseDto sender;
@@ -20,8 +19,8 @@ public class FriendsResponseDto {
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
-    public static FriendsResponseDto toMapDto(Friends friends) {
-        return new FriendsResponseDto(
+    public static SendFriendsResponseDto toMapDto(Friends friends) {
+        return new SendFriendsResponseDto(
                 friends.getId(),
                 UserBaseDto.fromEntity(friends.getFromUser()),
                 UserBaseDto.fromEntity(friends.getToUser()),

@@ -1,9 +1,9 @@
 package com.sns.api.friends.service;
 
 import com.sns.api.common.domain.dto.UserBaseDto;
-import com.sns.api.friends.controller.SendFriendsRequestDto;
-import com.sns.api.friends.domain.dto.response.FriendsResponseDto;
+import com.sns.api.friends.domain.dto.request.SendFriendsRequestDto;
+import com.sns.api.friends.domain.dto.response.SendFriendsResponseDto;
 
 public interface FriendsService {
-    FriendsResponseDto requestFriend(SendFriendsRequestDto requestDto, UserBaseDto userBaseDto);
+    SendFriendsResponseDto requestFriend(SendFriendsRequestDto requestDto, UserBaseDto userBaseDto);
 }

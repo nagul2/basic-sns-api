@@ -1,4 +1,4 @@
-package com.sns.api.friends.controller;
+package com.sns.api.friends.domain.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
