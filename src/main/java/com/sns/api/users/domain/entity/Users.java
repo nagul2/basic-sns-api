@@ -56,4 +56,19 @@ public class Users extends BaseTimeEntity {
 
         this.isDeleted = false;
     }
+
+    public void updateMyInfo(String username, String birth, String mbti) {
+
+        if (StringUtils.isNotEmpty(username)) {
+            this.username = username;
+        }
+
+        if (StringUtils.isNotEmpty(birth)) {
+            this.birth = LocalDate.parse(birth);
+        }
+
+        if (StringUtils.isNotEmpty(mbti)) {
+            this.mbti = MBTI.valueOf(mbti.toUpperCase());
+        }
+    }
 }
