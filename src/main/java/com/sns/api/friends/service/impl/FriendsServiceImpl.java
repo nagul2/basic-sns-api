@@ -2,7 +2,7 @@ package com.sns.api.friends.service.impl;
 
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.friends.controller.SendFriendsRequestDto;
-import com.sns.api.friends.domain.dto.FriendsResponseDto;
+import com.sns.api.friends.domain.dto.response.FriendsResponseDto;
 import com.sns.api.friends.domain.entity.Friends;
 import com.sns.api.friends.repository.FriendsRepository;
 import com.sns.api.friends.service.FriendsService;

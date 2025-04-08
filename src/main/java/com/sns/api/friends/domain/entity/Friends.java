@@ -21,20 +21,20 @@ public class Friends extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "from")
-    private Users from;
+    @JoinColumn(name = "from_user_id")
+    private Users fromUser;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "to")
-    private Users to;
+    @JoinColumn(name = "to_user_id")
+    private Users toUser;
 
     @Enumerated(EnumType.STRING)
     private FriendsStatus status;
 
     public static Friends of(Users SendUser, Users ReceiveUser) {
         return Friends.builder()
-                .from(SendUser)
-                .to(ReceiveUser)
+                .fromUser(SendUser)
+                .toUser(ReceiveUser)
                 .status(FriendsStatus.ACCEPT).build();
     }
 

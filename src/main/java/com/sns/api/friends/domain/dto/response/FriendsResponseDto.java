@@ -1,4 +1,4 @@
-package com.sns.api.friends.domain.dto;
+package com.sns.api.friends.domain.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sns.api.common.domain.dto.UserBaseDto;
@@ -28,8 +28,8 @@ public class FriendsResponseDto {
     public static FriendsResponseDto toMapDto(Friends friends) {
         return new FriendsResponseDto(
                 friends.getId(),
-                UserBaseDto.fromEntity(friends.getFrom()),
-                UserBaseDto.fromEntity(friends.getTo()),
+                UserBaseDto.fromEntity(friends.getFromUser()),
+                UserBaseDto.fromEntity(friends.getToUser()),
                 friends.getStatus(),
                 friends.getCreatedAt(),
                 friends.getModifiedAt()
