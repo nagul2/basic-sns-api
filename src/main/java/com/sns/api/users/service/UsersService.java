@@ -5,7 +5,8 @@ import com.sns.api.users.domain.dto.UserUpdateRequestDto;
 import com.sns.api.users.domain.dto.PasswordUpdateDto;
 import com.sns.api.users.domain.dto.UserDeleteRequestDto;
 import com.sns.api.users.domain.dto.UsersResponseDto;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface UsersService {
 
@@ -15,7 +16,7 @@ public interface UsersService {
 
     UserReadResponseDto findById(Long id);
 
-    List<UserReadResponseDto> searchUsers(String username, String email);
+    Page<UserReadResponseDto> searchUsers(Pageable pageable, String username, String email);
 
     void deleteMe(Long id, UserDeleteRequestDto requestDto);
 

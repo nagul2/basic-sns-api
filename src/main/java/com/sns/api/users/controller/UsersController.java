@@ -11,8 +11,11 @@ import com.sns.common.component.BaseResponse;
 import com.sns.common.component.Const;
 import com.sns.common.component.ResultCode;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -52,10 +55,11 @@ public class UsersController {
     }
 
     @GetMapping
-    public BaseResponse<List<UserReadResponseDto>> searchUsers(@RequestParam(required = false) String username,
-                                                               @RequestParam(required = false) String email) {
+    public BaseResponse<Page<UserReadResponseDto>> searchUsers(
+            @PageableDefault(size = 5, page = 0, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(required = false) String username, @RequestParam(required = false) String email) {
 
-        return BaseResponse.success(usersService.searchUsers(username, email), ResultCode.OK);
+        return BaseResponse.success(usersService.searchUsers(pageable, username, email), ResultCode.OK);
     }
 
     @DeleteMapping("/me")

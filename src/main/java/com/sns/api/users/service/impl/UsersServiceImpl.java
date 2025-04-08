@@ -13,9 +13,10 @@ import com.sns.common.component.ResultCode;
 import com.sns.common.config.PasswordEncoder;
 import com.sns.common.exception.CustomException;
 import jakarta.transaction.Transactional;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -93,8 +94,8 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-    public List<UserReadResponseDto> searchUsers(String username, String email) {
+    public Page<UserReadResponseDto> searchUsers(Pageable pageable, String username, String email) {
 
-        return usersRepository.searchByUsernameAndEmail(username, email).stream().map(UserReadResponseDto::fromEntity).toList();
+        return usersRepository.searchByUsernameAndEmail(pageable, username, email).map(UserReadResponseDto::fromEntity);
     }
 }
