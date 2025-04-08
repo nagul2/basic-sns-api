@@ -2,6 +2,7 @@ package com.sns.api.posts.controller;
 
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.posts.domain.dto.request.PostCreateRequestDto;
+import com.sns.api.posts.domain.dto.request.PostSearchRequestDto;
 import com.sns.api.posts.domain.dto.request.PostUpdateRequestDto;
 import com.sns.api.posts.domain.dto.response.PostResponseDto;
 import com.sns.api.posts.service.PostsService;
@@ -41,10 +42,11 @@ public class PostsController {
 
     @GetMapping
     public BaseResponse<Page<PostResponseDto>> getPosts(
-            @PageableDefault(size = 10, page = 0, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 10, page = 0, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @ModelAttribute @Valid PostSearchRequestDto searchRequestDto
     ) {
 
-        Page<PostResponseDto> posts = postsService.getPosts(pageable);
+        Page<PostResponseDto> posts = postsService.getPosts(pageable, searchRequestDto);
 
         return BaseResponse.success(posts, ResultCode.OK);
     }
