@@ -10,6 +10,7 @@ import com.sns.api.users.service.UsersService;
 import com.sns.common.component.ResultCode;
 import com.sns.common.exception.CustomException;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -48,5 +49,11 @@ public class UsersServiceImpl implements UsersService {
                 .orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
 
         return ReadUserResponseDto.fromEntity(user);
+    }
+
+    @Override
+    public List<ReadUserResponseDto> searchUsers(String username, String email) {
+
+        return usersRepository.searchByUsernameAndEmail(username, email).stream().map(ReadUserResponseDto::fromEntity).toList();
     }
 }
