@@ -36,3 +36,8 @@ out/
 ### VS Code ###
 .vscode/
 src/main/resources/config/jm/
+
+## ncookie
+src/main/resources/config/ncookie
+db/mysql/data
+docker-compose.yml
