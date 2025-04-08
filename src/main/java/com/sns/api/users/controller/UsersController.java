@@ -1,8 +1,8 @@
 package com.sns.api.users.controller;
 
 import com.sns.api.common.domain.dto.UserBaseDto;
-import com.sns.api.users.domain.dto.ReadUserResponseDto;
-import com.sns.api.users.domain.dto.UpdateUserRequestDto;
+import com.sns.api.users.domain.dto.UserReadResponseDto;
+import com.sns.api.users.domain.dto.UserUpdateRequestDto;
 import com.sns.api.users.domain.dto.PasswordUpdateDto;
 import com.sns.api.users.domain.dto.UserDeleteRequestDto;
 import com.sns.api.users.domain.dto.UsersResponseDto;
@@ -40,20 +40,20 @@ public class UsersController {
 
     @PutMapping("/me")
     public BaseResponse<UsersResponseDto> updateMyInfo(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userDto,
-                                                       @RequestBody @Valid UpdateUserRequestDto updateDto) {
+                                                       @RequestBody @Valid UserUpdateRequestDto updateDto) {
 
         return BaseResponse.success(usersService.updateMyInfo(userDto.getUserId(), updateDto), ResultCode.OK);
     }
 
     @GetMapping("/{id}")
-    public BaseResponse<ReadUserResponseDto> findById(@PathVariable Long id) {
+    public BaseResponse<UserReadResponseDto> findById(@PathVariable Long id) {
 
         return BaseResponse.success(usersService.findById(id), ResultCode.OK);
     }
 
     @GetMapping
-    public BaseResponse<List<ReadUserResponseDto>> searchUsers(@RequestParam(required = false) String username,
-                                                           @RequestParam(required = false) String email) {
+    public BaseResponse<List<UserReadResponseDto>> searchUsers(@RequestParam(required = false) String username,
+                                                               @RequestParam(required = false) String email) {
 
         return BaseResponse.success(usersService.searchUsers(username, email), ResultCode.OK);
     }

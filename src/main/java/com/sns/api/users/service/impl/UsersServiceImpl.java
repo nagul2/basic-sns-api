@@ -1,7 +1,7 @@
 package com.sns.api.users.service.impl;
 
-import com.sns.api.users.domain.dto.ReadUserResponseDto;
-import com.sns.api.users.domain.dto.UpdateUserRequestDto;
+import com.sns.api.users.domain.dto.UserReadResponseDto;
+import com.sns.api.users.domain.dto.UserUpdateRequestDto;
 import com.sns.api.users.domain.dto.PasswordUpdateDto;
 import com.sns.api.users.domain.dto.UserDeleteRequestDto;
 import com.sns.api.users.domain.dto.UsersResponseDto;
@@ -37,7 +37,7 @@ public class UsersServiceImpl implements UsersService {
 
     @Override
     @Transactional
-    public UsersResponseDto updateMyInfo(Long id, UpdateUserRequestDto dto) {
+    public UsersResponseDto updateMyInfo(Long id, UserUpdateRequestDto dto) {
 
         Users user = usersRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
@@ -84,17 +84,17 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-    public ReadUserResponseDto findById(Long id) {
+    public UserReadResponseDto findById(Long id) {
 
         Users user = usersRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
 
-        return ReadUserResponseDto.fromEntity(user);
+        return UserReadResponseDto.fromEntity(user);
     }
 
     @Override
-    public List<ReadUserResponseDto> searchUsers(String username, String email) {
+    public List<UserReadResponseDto> searchUsers(String username, String email) {
 
-        return usersRepository.searchByUsernameAndEmail(username, email).stream().map(ReadUserResponseDto::fromEntity).toList();
+        return usersRepository.searchByUsernameAndEmail(username, email).stream().map(UserReadResponseDto::fromEntity).toList();
     }
 }

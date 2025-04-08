@@ -5,7 +5,7 @@ import lombok.Getter;
 import org.hibernate.validator.constraints.Length;
 
 @Getter
-public class UpdateUserRequestDto {
+public class UserUpdateRequestDto {
 
     @Length(max = 10, message = "이름은 10글자까지 입력가능합니다.")
     private String username;

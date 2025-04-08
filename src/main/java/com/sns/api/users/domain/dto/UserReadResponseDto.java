@@ -8,7 +8,7 @@ import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
-public class ReadUserResponseDto {
+public class UserReadResponseDto {
 
     private Long userId;
 
@@ -22,8 +22,8 @@ public class ReadUserResponseDto {
 
     private LocalDateTime modifiedAt;
 
-    public static ReadUserResponseDto fromEntity(Users user) {
-        return ReadUserResponseDto.builder()
+    public static UserReadResponseDto fromEntity(Users user) {
+        return UserReadResponseDto.builder()
                 .userId(user.getId())
                 .email(user.getEmail())
                 .username(user.getUsername())
