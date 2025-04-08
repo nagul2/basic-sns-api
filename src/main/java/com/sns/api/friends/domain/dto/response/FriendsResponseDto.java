@@ -17,13 +17,8 @@ public class FriendsResponseDto {
     private final UserBaseDto sender;
     private final UserBaseDto receiver;
     private final FriendsStatus status;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private final LocalDateTime createdAt;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private final LocalDateTime modifiedAt;
-
 
     public static FriendsResponseDto toMapDto(Friends friends) {
         return new FriendsResponseDto(
