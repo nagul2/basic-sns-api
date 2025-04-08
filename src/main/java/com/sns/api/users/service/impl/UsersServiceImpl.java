@@ -30,8 +30,7 @@ public class UsersServiceImpl implements UsersService {
     @Override
     public UsersResponseDto getMyInfo(Long id) {
 
-        Users user = usersRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
+        Users user = findByIdOrElseThrow(id);
 
         return UsersResponseDto.fromEntity(user);
     }
@@ -40,8 +39,7 @@ public class UsersServiceImpl implements UsersService {
     @Transactional
     public UsersResponseDto updateMyInfo(Long id, UserUpdateRequestDto dto) {
 
-        Users user = usersRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
+        Users user = findByIdOrElseThrow(id);
 
         user.updateMyInfo(dto.getUsername(), dto.getBirth(), dto.getMbti());
         usersRepository.save(user);
@@ -50,8 +48,7 @@ public class UsersServiceImpl implements UsersService {
     }
 
     public void deleteMe(Long id, UserDeleteRequestDto requestDto) {
-        Users user = usersRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
+        Users user = findByIdOrElseThrow(id);
 
         String password = requestDto.getPassword();
 
@@ -65,8 +62,7 @@ public class UsersServiceImpl implements UsersService {
     @Override
     @Transactional
     public void updatePassword(Long id, PasswordUpdateDto updateDto) {
-        Users user = usersRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
+        Users user = findByIdOrElseThrow(id);
 
         String newPassword = updateDto.getNewPassword();
         String currentPassword = updateDto.getCurrentPassword();
@@ -87,8 +83,7 @@ public class UsersServiceImpl implements UsersService {
     @Override
     public UserReadResponseDto findById(Long id) {
 
-        Users user = usersRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
+        Users user = findByIdOrElseThrow(id);
 
         return UserReadResponseDto.fromEntity(user);
     }
@@ -97,5 +92,10 @@ public class UsersServiceImpl implements UsersService {
     public Page<UserReadResponseDto> searchUsers(Pageable pageable, String username, String email) {
 
         return usersRepository.searchByUsernameAndEmail(pageable, username, email).map(UserReadResponseDto::fromEntity);
+    }
+
+    private Users findByIdOrElseThrow(Long id) {
+
+        return usersRepository.findById(id).orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
     }
 }
