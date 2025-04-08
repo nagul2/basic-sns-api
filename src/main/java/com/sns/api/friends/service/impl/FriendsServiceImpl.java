@@ -68,7 +68,7 @@ public class FriendsServiceImpl implements FriendsService {
         Long senderId = findFriends.getFromUser().getId();
         Long receiverId = findFriends.getToUser().getId();
 
-        if (!loginUserId.equals(senderId) || !loginUserId.equals(receiverId)) {
+        if (!loginUserId.equals(senderId) && !loginUserId.equals(receiverId)) {
             throw new CustomException(ResultCode.ACCESS_DENIED, "접근 권한이 없습니다.");
         }
 
@@ -78,7 +78,6 @@ public class FriendsServiceImpl implements FriendsService {
 
         return actionFriendStatus(requestDto, findFriends);
     }
-
 
     /**
      * SendUser, ReceiveUser 찾고 못찾으면 예외 던지는 메서드
