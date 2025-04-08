@@ -1,6 +1,7 @@
 package com.sns.api.users.controller;
 
 import com.sns.api.common.domain.dto.UserBaseDto;
+import com.sns.api.users.domain.dto.PasswordUpdateDto;
 import com.sns.api.users.domain.dto.UserDeleteRequestDto;
 import com.sns.api.users.domain.dto.UsersResponseDto;
 import com.sns.api.users.service.UsersService;
@@ -36,6 +37,14 @@ public class UsersController {
         HttpSession session = request.getSession();
         session.invalidate();
 
+        return BaseResponse.success(null, ResultCode.NO_CONTENT);
+    }
+
+    @PutMapping("/me/password")
+    public BaseResponse<Object> updatePassword(@RequestBody @Valid PasswordUpdateDto updateDto
+            , @SessionAttribute(Const.LOGIN_USER) UserBaseDto dto) {
+
+        usersService.updatePassword(dto.getUserId(), updateDto);
         return BaseResponse.success(null, ResultCode.NO_CONTENT);
     }
 }

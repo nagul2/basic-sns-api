@@ -58,4 +58,8 @@ public class Users extends BaseTimeEntity {
 
         this.isDeleted = false;
     }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
 }
