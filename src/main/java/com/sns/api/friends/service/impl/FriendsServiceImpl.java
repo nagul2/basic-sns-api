@@ -1,8 +1,8 @@
 package com.sns.api.friends.service.impl;
 
 import com.sns.api.common.domain.dto.UserBaseDto;
-import com.sns.api.friends.controller.SendFriendsRequestDto;
-import com.sns.api.friends.domain.dto.response.FriendsResponseDto;
+import com.sns.api.friends.domain.dto.request.SendFriendsRequestDto;
+import com.sns.api.friends.domain.dto.response.SendFriendsResponseDto;
 import com.sns.api.friends.domain.entity.Friends;
 import com.sns.api.friends.repository.FriendsRepository;
 import com.sns.api.friends.service.FriendsService;
@@ -31,14 +31,14 @@ public class FriendsServiceImpl implements FriendsService {
      */
     @Override
     @Transactional
-    public FriendsResponseDto requestFriend(SendFriendsRequestDto requestDto, UserBaseDto userBaseDto) {
+    public SendFriendsResponseDto requestFriend(SendFriendsRequestDto requestDto, UserBaseDto userBaseDto) {
 
         Users findReceiveUser = findUserByIdOrElseThrow(requestDto.getReceiverId());
         Users findSendUser = findUserByIdOrElseThrow(userBaseDto.getUserId());
 
         Friends saveFriend = friendsRepository.save(Friends.of(findSendUser, findReceiveUser));
 
-        return FriendsResponseDto.toMapDto(saveFriend);
+        return SendFriendsResponseDto.toMapDto(saveFriend);
     }
 
     /**
