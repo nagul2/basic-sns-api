@@ -38,7 +38,9 @@ public class FriendsServiceImpl implements FriendsService {
         Users findReceiveUser = findUserByIdOrElseThrow(requestDto.getReceiverId());
         Users findSendUser = findUserByIdOrElseThrow(userBaseDto.getUserId());
 
-        // todo: 이미 보낸 친구 요청 방어 로직 추가해야 함
+        if (friendsRepository.existsByFromUserAndToUser(findSendUser, findReceiveUser)) {
+            throw new CustomException(ResultCode.VALID_FAIL, "이미 친구 요청을 보냈습니다.");
+        }
 
         Friends saveFriend = friendsRepository.save(Friends.of(findSendUser, findReceiveUser));
 
