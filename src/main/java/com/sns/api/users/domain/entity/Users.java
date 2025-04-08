@@ -5,6 +5,7 @@ import com.sns.api.common.domain.entity.BaseTimeEntity;
 import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.*;
 import lombok.Getter;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDate;
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 @Entity
 @Getter
 @Table(name = "users")
+@SQLDelete(sql = "update users set is_deleted = true where id = ?")
 @SQLRestriction("is_deleted = false")
 public class Users extends BaseTimeEntity {
 
@@ -55,5 +57,9 @@ public class Users extends BaseTimeEntity {
         }
 
         this.isDeleted = false;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
     }
 }
