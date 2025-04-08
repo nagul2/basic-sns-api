@@ -38,6 +38,10 @@ public class FriendsServiceImpl implements FriendsService {
         Users findReceiveUser = findUserByIdOrElseThrow(requestDto.getReceiverId());
         Users findSendUser = findUserByIdOrElseThrow(userBaseDto.getUserId());
 
+        if (findReceiveUser.equals(findSendUser)) {
+            throw new CustomException(ResultCode.VALID_FAIL, "동일한 대상에게는 친구 요청을 할 수 없습니다.");
+        }
+
         if (friendsRepository.existsByFromUserAndToUser(findSendUser, findReceiveUser)) {
             throw new CustomException(ResultCode.VALID_FAIL, "이미 친구 요청을 보냈습니다.");
         }
