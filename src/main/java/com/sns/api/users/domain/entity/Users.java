@@ -43,7 +43,7 @@ public class Users extends BaseTimeEntity {
     public Users() {
     }
 
-    public Users (String email, String username, String password, String birth, String mbti) {
+    public Users(String email, String username, String password, String birth, String mbti) {
         this.email = email;
         this.username = username;
         this.password = password;
@@ -57,6 +57,12 @@ public class Users extends BaseTimeEntity {
         }
 
         this.isDeleted = false;
+    }
+
+    public void updateMyInfo(String username, String birth, String mbti) {
+        this.username = username;
+        this.birth = StringUtils.isNotEmpty(birth) ? LocalDate.parse(birth) : null;
+        this.mbti = StringUtils.isNotEmpty(mbti) ? MBTI.valueOf(mbti.toUpperCase()) : null;
     }
 
     public void updatePassword(String password) {
