@@ -1,14 +1,17 @@
 package com.sns.api.users.controller;
 
 import com.sns.api.common.domain.dto.UserBaseDto;
+import com.sns.api.users.domain.dto.ReadUserResponseDto;
 import com.sns.api.users.domain.dto.UpdateUserRequestDto;
 import com.sns.api.users.domain.dto.UsersResponseDto;
 import com.sns.api.users.service.UsersService;
 import com.sns.common.component.BaseResponse;
 import com.sns.common.component.Const;
 import com.sns.common.component.ResultCode;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,8 +33,14 @@ public class UsersController {
 
     @PutMapping("/me")
     public BaseResponse<UsersResponseDto> updateMyInfo(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userDto,
-                                                       @RequestBody UpdateUserRequestDto updateDto) {
+                                                       @RequestBody @Valid UpdateUserRequestDto updateDto) {
 
         return BaseResponse.success(usersService.updateMyInfo(userDto.getUserId(), updateDto), ResultCode.OK);
+    }
+
+    @GetMapping("/{id}")
+    public BaseResponse<ReadUserResponseDto> findById(@PathVariable Long id) {
+
+        return BaseResponse.success(usersService.findById(id), ResultCode.OK);
     }
 }

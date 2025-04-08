@@ -1,5 +1,6 @@
 package com.sns.api.users.service.impl;
 
+import com.sns.api.users.domain.dto.ReadUserResponseDto;
 import com.sns.api.users.domain.dto.UpdateUserRequestDto;
 import com.sns.api.users.domain.dto.UsersResponseDto;
 import com.sns.api.users.domain.entity.Users;
@@ -38,5 +39,14 @@ public class UsersServiceImpl implements UsersService {
         usersRepository.save(user);
 
         return UsersResponseDto.fromEntity(user);
+    }
+
+    @Override
+    public ReadUserResponseDto findById(Long id) {
+
+        Users user = usersRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
+
+        return ReadUserResponseDto.fromEntity(user);
     }
 }
