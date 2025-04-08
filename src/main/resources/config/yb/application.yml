@@ -1,0 +1,11 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/sparta-sns?serverTimezone=Asia/Seoul
+    username: root
+    password: "0724"
+    hikari:
+      auto-commit: true
