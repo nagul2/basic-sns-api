@@ -35,5 +35,11 @@ out/
 
 ### VS Code ###
 .vscode/
+
+## custom
 src/main/resources/config/jm/
+src/main/resources/config/ncookie
 src/main/resources/config/yb/
+
+db/mysql/data
+docker-compose.yml
