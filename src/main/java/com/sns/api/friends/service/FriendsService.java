@@ -1,9 +1,13 @@
 package com.sns.api.friends.service;
 
 import com.sns.api.common.domain.dto.UserBaseDto;
+import com.sns.api.friends.domain.dto.request.ActionFriendsRequestDto;
 import com.sns.api.friends.domain.dto.request.SendFriendsRequestDto;
-import com.sns.api.friends.domain.dto.response.SendFriendsResponseDto;
+import com.sns.api.friends.domain.dto.response.CommonFriendsResponseDto;
+import jakarta.validation.Valid;
 
 public interface FriendsService {
-    SendFriendsResponseDto requestFriend(SendFriendsRequestDto requestDto, UserBaseDto userBaseDto);
+    CommonFriendsResponseDto requestFriend(SendFriendsRequestDto requestDto, UserBaseDto userBaseDto);
+
+    CommonFriendsResponseDto actionFriend(Long friendsId, ActionFriendsRequestDto requestDto, UserBaseDto userBaseDto);
 }

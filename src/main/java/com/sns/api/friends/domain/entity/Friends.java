@@ -31,11 +31,15 @@ public class Friends extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private FriendsStatus status;
 
+    public void accept() {
+        this.status = FriendsStatus.ACCEPT;
+    }
+
     public static Friends of(Users SendUser, Users ReceiveUser) {
         return Friends.builder()
                 .fromUser(SendUser)
                 .toUser(ReceiveUser)
-                .status(FriendsStatus.ACCEPT).build();
+                .status(FriendsStatus.PENDING).build();
     }
 
 }
