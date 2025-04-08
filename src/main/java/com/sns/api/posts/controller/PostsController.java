@@ -50,7 +50,7 @@ public class PostsController {
     }
 
     @PutMapping("/{postId}")
-    public BaseResponse<PostResponseDto> getPost(
+    public BaseResponse<PostResponseDto> updatePost(
             @SessionAttribute(name = Const.LOGIN_USER) UserBaseDto userBaseDto,
             @PathVariable Long postId,
             @RequestBody @Valid PostUpdateRequestDto updateRequestDto
@@ -62,7 +62,7 @@ public class PostsController {
     }
 
     @DeleteMapping("/{postId}")
-    public BaseResponse<Void> getPost(
+    public BaseResponse<Void> deletePost(
             @SessionAttribute(name = Const.LOGIN_USER) UserBaseDto userBaseDto,
             @PathVariable Long postId
     ) {
