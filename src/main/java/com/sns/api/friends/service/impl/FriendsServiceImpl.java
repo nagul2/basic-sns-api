@@ -60,8 +60,11 @@ public class FriendsServiceImpl implements FriendsService {
     public CommonFriendsResponseDto actionFriend(Long friendsId, ActionFriendsRequestDto requestDto, UserBaseDto userBaseDto) {
 
         Friends findFriends = findFriendsByIdOrElseThrow(friendsId);
+        Long loginUserId = userBaseDto.getUserId();
+        Long senderId = findFriends.getFromUser().getId();
+        Long receiverId = findFriends.getToUser().getId();
 
-        if (!findFriends.getToUser().getId().equals(userBaseDto.getUserId())) {
+        if (!loginUserId.equals(senderId) || !loginUserId.equals(receiverId)) {
             throw new CustomException(ResultCode.ACCESS_DENIED, "접근 권한이 없습니다.");
         }
 
