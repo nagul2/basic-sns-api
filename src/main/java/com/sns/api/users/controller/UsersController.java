@@ -1,16 +1,17 @@
 package com.sns.api.users.controller;
 
 import com.sns.api.common.domain.dto.UserBaseDto;
+import com.sns.api.users.domain.dto.UserDeleteRequestDto;
 import com.sns.api.users.domain.dto.UsersResponseDto;
 import com.sns.api.users.service.UsersService;
 import com.sns.common.component.BaseResponse;
 import com.sns.common.component.Const;
 import com.sns.common.component.ResultCode;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttribute;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
@@ -23,5 +24,18 @@ public class UsersController {
     public BaseResponse<UsersResponseDto> getMyInfo(@SessionAttribute(Const.LOGIN_USER) UserBaseDto dto) {
 
         return BaseResponse.success(usersService.getMyInfo(dto.getUserId()), ResultCode.OK);
+    }
+
+    @DeleteMapping("/me")
+    public BaseResponse<Object> deleteMe(@RequestBody @Valid UserDeleteRequestDto requestDto
+            , @SessionAttribute(Const.LOGIN_USER) UserBaseDto dto, HttpServletRequest request) {
+
+        usersService.deleteMe(dto.getUserId(), requestDto);
+
+        // 세션 초기화
+        HttpSession session = request.getSession();
+        session.invalidate();
+
+        return BaseResponse.success(null, ResultCode.NO_CONTENT);
     }
 }
