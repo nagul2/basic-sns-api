@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 public interface PostsRepository extends JpaRepository<Posts, Long> {
 
     @Query("SELECT p FROM Posts p WHERE p.createdAt >= :startDate AND p.createdAt <= :endDate")
-    Page<Posts> findPostsByCreatedAt(Pageable pageable, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+    Page<Posts> findPostsByCreatedAt(@Param("startDate") LocalDateTime startDate,
+                                     @Param("endDate") LocalDateTime endDate,
+                                     Pageable pageable);
 
 }

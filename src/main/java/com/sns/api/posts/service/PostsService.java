@@ -14,10 +14,10 @@ public interface PostsService {
 
     PostResponseDto getPostById(Long postId);
 
-    Page<PostResponseDto> getPosts(Pageable pageable, PostSearchRequestDto searchRequestDto);
+    Page<PostResponseDto> getPosts(PostSearchRequestDto searchRequestDto, Pageable pageable);
 
-    PostResponseDto updatePost(UserBaseDto userBaseDto, Long postId, PostUpdateRequestDto updateRequestDto);
+    PostResponseDto updatePost(Long postId, PostUpdateRequestDto updateRequestDto, UserBaseDto userBaseDto);
 
-    void deletePost(UserBaseDto userBaseDto, Long postId);
+    void deletePost(Long postId, UserBaseDto userBaseDto);
 
 }
