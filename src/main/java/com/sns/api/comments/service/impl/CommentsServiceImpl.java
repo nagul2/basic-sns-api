@@ -58,8 +58,7 @@ public class CommentsServiceImpl implements CommentsService {
     @Override
     public Page<CommentResponseDto> getCommentsByPost(Pageable pageable, Long postId) {
 
-        Posts post = postsRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
+        Posts post = getPostByIdOrElseThrow(postId);
 
         Page<Comments> comments = commentsRepository.findAllByPost(post, pageable);
 
