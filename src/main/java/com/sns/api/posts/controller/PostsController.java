@@ -71,6 +71,6 @@ public class PostsController {
 
         postsService.deletePost(userBaseDto, postId);
 
-        return BaseResponse.success(null, ResultCode.OK);
+        return BaseResponse.success(null, ResultCode.NO_CONTENT);
     }
 }
