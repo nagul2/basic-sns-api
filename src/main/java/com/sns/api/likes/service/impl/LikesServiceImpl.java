@@ -10,6 +10,7 @@ import com.sns.api.posts.domain.entity.Posts;
 import com.sns.api.posts.repository.PostsRepository;
 import com.sns.common.component.ResultCode;
 import com.sns.common.exception.CustomException;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,10 @@ public class LikesServiceImpl implements LikesService {
 
         // 해당 게시글이 있는지 조회
         Posts posts = findByIdOrElseThrow(likeTypeId);
+
+        if (Objects.equals(posts.getCreatedBy().getId(), userBaseDto.getUserId())) {
+            throw new CustomException(ResultCode.VALID_FAIL, "본인이 작성한 글에는 좋아요를 남길 수 없습니다.");
+        }
 
         // 이미 좋아요를 눌렀는지 조회
         boolean isExist = likesRepository.existsByLikeTypeAndLikeTypeIdAndCreatedById(likeType, likeTypeId,
