@@ -67,7 +67,8 @@ public class CommentsController {
 
         commentsService.deleteComment(postId, commentId, userBaseDto);
 
-        return BaseResponse.success(null, ResultCode.OK);
+        return BaseResponse.success(null, ResultCode.NO_CONTENT);
     }
 
 }
+

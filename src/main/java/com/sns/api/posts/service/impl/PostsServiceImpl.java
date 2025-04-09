@@ -18,8 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Service
@@ -59,15 +57,15 @@ public class PostsServiceImpl implements PostsService {
      */
     @Transactional(readOnly = true)
     @Override
-    public Page<PostResponseDto> getPosts(Pageable pageable, PostSearchRequestDto searchRequestDto) {
+    public Page<PostResponseDto> getPosts(PostSearchRequestDto searchRequestDto, Pageable pageable) {
 
         // 기간별 검색
         // startDate, endDate 모두 null 값이 아니고, startDate <= endDate 이어야 기간별 검색 쿼리를 수행
         if (searchRequestDto.hasValidValue()) {
             Page<Posts> findPosts = postsRepository.findPostsByCreatedAt(
-                    pageable,
                     searchRequestDto.getStartDate(),
-                    searchRequestDto.getEndDate()
+                    searchRequestDto.getEndDate(),
+                    pageable
             );
             return findPosts.map(PostResponseDto::fromEntity);
         }
@@ -78,7 +76,7 @@ public class PostsServiceImpl implements PostsService {
 
     @Transactional
     @Override
-    public PostResponseDto updatePost(UserBaseDto userBaseDto, Long postId, PostUpdateRequestDto updateRequestDto) {
+    public PostResponseDto updatePost(Long postId, PostUpdateRequestDto updateRequestDto, UserBaseDto userBaseDto) {
 
         Users user = getUserByIdOrElseThrow(userBaseDto.getUserId());
         Posts post = getPostByIdOrElseThrow(postId);
@@ -92,7 +90,7 @@ public class PostsServiceImpl implements PostsService {
 
     @Transactional
     @Override
-    public void deletePost(UserBaseDto userBaseDto, Long postId) {
+    public void deletePost(Long postId, UserBaseDto userBaseDto) {
 
         Users user = getUserByIdOrElseThrow(userBaseDto.getUserId());
         Posts post = getPostByIdOrElseThrow(postId);

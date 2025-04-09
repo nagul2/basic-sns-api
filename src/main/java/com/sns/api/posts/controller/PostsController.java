@@ -41,36 +41,30 @@ public class PostsController {
     }
 
     @GetMapping
-    public BaseResponse<Page<PostResponseDto>> getPosts(
-            @PageableDefault(size = 10, page = 0, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
-            @ModelAttribute @Valid PostSearchRequestDto searchRequestDto
-    ) {
+    public BaseResponse<Page<PostResponseDto>> getPosts(@ModelAttribute @Valid PostSearchRequestDto searchRequestDto,
+                                                        @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Page<PostResponseDto> posts = postsService.getPosts(pageable, searchRequestDto);
+        Page<PostResponseDto> posts = postsService.getPosts(searchRequestDto, pageable);
 
         return BaseResponse.success(posts, ResultCode.OK);
     }
 
     @PutMapping("/{postId}")
-    public BaseResponse<PostResponseDto> updatePost(
-            @SessionAttribute(name = Const.LOGIN_USER) UserBaseDto userBaseDto,
-            @PathVariable Long postId,
-            @RequestBody @Valid PostUpdateRequestDto updateRequestDto
-    ) {
+    public BaseResponse<PostResponseDto> updatePost(@PathVariable Long postId,
+                                                    @RequestBody @Valid PostUpdateRequestDto updateRequestDto,
+                                                    @SessionAttribute(name = Const.LOGIN_USER) UserBaseDto userBaseDto) {
 
-        PostResponseDto updatedPost = postsService.updatePost(userBaseDto, postId, updateRequestDto);
+        PostResponseDto updatedPost = postsService.updatePost(postId, updateRequestDto, userBaseDto);
 
         return BaseResponse.success(updatedPost, ResultCode.OK);
     }
 
     @DeleteMapping("/{postId}")
-    public BaseResponse<Void> deletePost(
-            @SessionAttribute(name = Const.LOGIN_USER) UserBaseDto userBaseDto,
-            @PathVariable Long postId
-    ) {
+    public BaseResponse<Void> deletePost(@PathVariable Long postId,
+                                         @SessionAttribute(name = Const.LOGIN_USER) UserBaseDto userBaseDto) {
 
-        postsService.deletePost(userBaseDto, postId);
+        postsService.deletePost(postId, userBaseDto);
 
-        return BaseResponse.success(null, ResultCode.OK);
+        return BaseResponse.success(null, ResultCode.NO_CONTENT);
     }
 }
