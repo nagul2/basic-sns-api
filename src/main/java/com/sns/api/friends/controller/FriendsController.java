@@ -45,11 +45,11 @@ public class FriendsController {
                                                                @RequestBody @Valid ActionFriendsRequestDto requestDto,
                                                                @SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto) {
 
-        CommonFriendsResponseDto CommonFriendsResponseDto = friendsService.actionFriend(requestId, requestDto, userBaseDto);
-        if (CommonFriendsResponseDto == null) {
+        CommonFriendsResponseDto commonFriendsResponseDto = friendsService.actionFriend(requestId, requestDto, userBaseDto);
+        if (commonFriendsResponseDto == null) {
             return BaseResponse.success(null, ResultCode.NO_CONTENT);
         }
 
-        return BaseResponse.success(CommonFriendsResponseDto, ResultCode.OK);
+        return BaseResponse.success(commonFriendsResponseDto, ResultCode.OK);
     }
 }
