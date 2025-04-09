@@ -8,7 +8,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Table(name = "frineds")
+// 실무에서는 직접 테이블을 만들 때 index를 적용하지만 local DB를 사용하고 실행 될 때마다 테이블을 다시 생성할 것이므로 index 설정을 추가
+@Table(name = "friends", indexes = {
+        @Index(name = "idx_from_user", columnList = "from_user_id"),
+        @Index(name = "idx_to_user", columnList = "to_user_id"),
+        @Index(name = "idx_status", columnList = "status")
+})
 @Entity
 @Getter
 @Builder

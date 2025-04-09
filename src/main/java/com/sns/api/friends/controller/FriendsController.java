@@ -4,12 +4,16 @@ import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.friends.domain.dto.request.ActionFriendsRequestDto;
 import com.sns.api.friends.domain.dto.request.SendFriendsRequestDto;
 import com.sns.api.friends.domain.dto.response.CommonFriendsResponseDto;
+import com.sns.api.friends.domain.dto.response.FindFriendsResponseDto;
 import com.sns.api.friends.service.FriendsService;
 import com.sns.common.component.BaseResponse;
 import com.sns.common.component.Const;
 import com.sns.common.component.ResultCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,6 +22,19 @@ import org.springframework.web.bind.annotation.*;
 public class FriendsController {
 
     private final FriendsService friendsService;
+
+    /**
+     * 내 친구 전체 조회
+     *
+     * @param userBaseDto 로그인 유저 정보
+     * @param pageable 페이징 정보(기본 5개씩 출력)
+     * @return 조회된 친구 Page<DTO> 및 200 응답
+     */
+    @GetMapping("/me")
+    public BaseResponse<Page<FindFriendsResponseDto>> findAcceptFriends(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto,
+                                                                        @PageableDefault(size = 5) Pageable pageable) {
+        return BaseResponse.success(friendsService.findAcceptFriends(userBaseDto, pageable), ResultCode.OK);
+    }
 
     /**
      * 친구 요청 API
