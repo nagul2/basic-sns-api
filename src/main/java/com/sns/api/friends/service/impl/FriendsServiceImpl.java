@@ -65,7 +65,7 @@ public class FriendsServiceImpl implements FriendsService {
         Long loginUserId = userBaseDto.getUserId();
 
         Page<FindFriendsResponseDto> findReceivedFriends = friendsRepository.findReceivedFriendsByLoginUserId(loginUserId, pageable)
-                .map(friends -> FindFriendsResponseDto.toMapDto(friends, friends.getToUser()));
+                .map(friends -> FindFriendsResponseDto.toMapDto(friends, friends.getFromUser()));
 
         if (findReceivedFriends.isEmpty()) { // 조회된 정보가 없으면 예외처리
             throw new CustomException(ResultCode.NOT_FOUND, "받은 친구 목록이 존재하지 않습니다.");
@@ -86,7 +86,7 @@ public class FriendsServiceImpl implements FriendsService {
         Long loginUserId = userBaseDto.getUserId();
 
         Page<FindFriendsResponseDto> findSentFriends = friendsRepository.findSentFriendsByLoginUserId(loginUserId, pageable)
-                .map(friends -> FindFriendsResponseDto.toMapDto(friends, friends.getFromUser()));
+                .map(friends -> FindFriendsResponseDto.toMapDto(friends, friends.getToUser()));
 
         if (findSentFriends.isEmpty()) { // 조회된 정보가 없으면 예외처리
             throw new CustomException(ResultCode.NOT_FOUND, "보낸 친구 목록이 존재하지 않습니다.");
