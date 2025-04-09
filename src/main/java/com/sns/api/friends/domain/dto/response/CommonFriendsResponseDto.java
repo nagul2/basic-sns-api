@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class SendFriendsResponseDto {
+public class CommonFriendsResponseDto {
 
     private final Long requestId;
     private final UserBaseDto sender;
@@ -19,8 +19,8 @@ public class SendFriendsResponseDto {
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
-    public static SendFriendsResponseDto toMapDto(Friends friends) {
-        return new SendFriendsResponseDto(
+    public static CommonFriendsResponseDto toMapDto(Friends friends) {
+        return new CommonFriendsResponseDto(
                 friends.getId(),
                 UserBaseDto.fromEntity(friends.getFromUser()),
                 UserBaseDto.fromEntity(friends.getToUser()),
