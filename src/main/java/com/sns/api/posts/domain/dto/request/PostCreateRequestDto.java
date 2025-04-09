@@ -7,8 +7,8 @@ import lombok.Getter;
 @Getter
 public class PostCreateRequestDto {
 
-    @NotBlank
-    @Size(max = 500)
+    @NotBlank(message = "본문을 입력해주세요.")
+    @Size(max = 2000, message = "게시물 본문은 2000자까지만 입력 가능합니다.")
     private String content;
 
 }
