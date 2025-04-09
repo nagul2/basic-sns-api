@@ -6,6 +6,7 @@ import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.posts.domain.dto.request.PostCreateRequestDto;
 import com.sns.api.posts.domain.dto.request.PostSearchRequestDto;
 import com.sns.api.posts.domain.dto.request.PostUpdateRequestDto;
+import com.sns.api.posts.domain.dto.response.PostFlatDto;
 import com.sns.api.posts.domain.dto.response.PostResponseDto;
 import com.sns.api.posts.domain.dto.response.PostWithCommentsResponseDto;
 import com.sns.api.posts.domain.entity.Posts;
@@ -84,16 +85,16 @@ public class PostsServiceImpl implements PostsService {
         // 기간별 검색
         // startDate, endDate 모두 null 값이 아니고, startDate <= endDate 이어야 기간별 검색 쿼리를 수행
         if (searchRequestDto.hasValidValue()) {
-            Page<Posts> findPosts = postsRepository.findPostsByCreatedAt(
+            Page<PostFlatDto> findPosts = postsRepository.findPostsByCreatedAt(
                     searchRequestDto.getStartDate(),
                     searchRequestDto.getEndDate(),
                     pageable
             );
-            return findPosts.map(PostResponseDto::fromEntity);
+            return findPosts.map(PostResponseDto::fromFlatDto);
         }
         
         // 일반 검색
-        return postsRepository.findAll(pageable).map(PostResponseDto::fromEntity);
+        return postsRepository.findAllWithCommentCount(pageable).map(PostResponseDto::fromFlatDto);
     }
 
     @Transactional
