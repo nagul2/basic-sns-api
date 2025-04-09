@@ -4,6 +4,7 @@ import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.friends.domain.dto.request.ActionFriendsRequestDto;
 import com.sns.api.friends.domain.dto.request.SendFriendsRequestDto;
 import com.sns.api.friends.domain.dto.response.CommonFriendsResponseDto;
+import com.sns.api.friends.domain.dto.response.FindFriendsResponseDto;
 import com.sns.api.friends.domain.entity.Friends;
 import com.sns.api.friends.domain.entity.FriendsStatus;
 import com.sns.api.friends.repository.FriendsRepository;
@@ -13,6 +14,9 @@ import com.sns.api.users.repository.UsersRepository;
 import com.sns.common.component.ResultCode;
 import com.sns.common.exception.CustomException;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +27,34 @@ public class FriendsServiceImpl implements FriendsService {
 
     private final FriendsRepository friendsRepository;
     private final UsersRepository usersRepository;
+
+    /**
+     * 친구 조회 비즈니스 로직
+     * 조회된 Friends 정보들을 Dto로 변환할 때 내가 친구를 요청하거나, 친구 요청을 받았을 수 있으므로 동적으로 변환하여 처리
+     *
+     * @param userBaseDto 로그인 유저 정보
+     * @param pageable 페이징 정보
+     * @return 조회된 Page<DTO>
+     */
+    @Override
+    public Page<FindFriendsResponseDto> findAcceptFriends(UserBaseDto userBaseDto, Pageable pageable) {
+
+        Long loginUserId = userBaseDto.getUserId();
+
+        Page<FindFriendsResponseDto> findAcceptsFriends = friendsRepository.findAcceptedFriendsByLoginUserId(loginUserId, pageable)
+                .map(friends -> FindFriendsResponseDto.toMapDto(friends,
+                        friends.getFromUser().getId().equals(loginUserId)
+                                ? friends.getToUser()
+                                : friends.getFromUser())
+
+                );
+
+        if (findAcceptsFriends.isEmpty()) { // 조회된 정보가 없으면 예외처리
+            throw new CustomException(ResultCode.NOT_FOUND, "조회된 회원이 없습니다.");
+        }
+
+        return findAcceptsFriends;
+    }
 
     /**
      * 친구 요청 저장
@@ -76,7 +108,7 @@ public class FriendsServiceImpl implements FriendsService {
     /**
      * 친구 삭제 처리
      *
-     * @param requestId 요청한 Friends 테이블의 PK 값
+     * @param requestId   요청한 Friends 테이블의 PK 값
      * @param userBaseDto 로그인 유저 정보
      */
     @Override
@@ -121,7 +153,7 @@ public class FriendsServiceImpl implements FriendsService {
      * 요청 거절, 취소 -> Friends 테이블에서 데이터 삭제 및 null 반환
      * PENDING 및 잘못된 요청 시 400 예외 발생
      *
-     * @param requestDto 전달된 요청 값
+     * @param requestDto  전달된 요청 값
      * @param findFriends 찾은 Friends
      * @return 응답할 DTO
      */

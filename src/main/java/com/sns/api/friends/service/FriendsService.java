@@ -4,6 +4,9 @@ import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.friends.domain.dto.request.ActionFriendsRequestDto;
 import com.sns.api.friends.domain.dto.request.SendFriendsRequestDto;
 import com.sns.api.friends.domain.dto.response.CommonFriendsResponseDto;
+import com.sns.api.friends.domain.dto.response.FindFriendsResponseDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface FriendsService {
     CommonFriendsResponseDto requestFriend(SendFriendsRequestDto requestDto, UserBaseDto userBaseDto);
@@ -11,4 +14,6 @@ public interface FriendsService {
     CommonFriendsResponseDto actionFriend(Long friendsId, ActionFriendsRequestDto requestDto, UserBaseDto userBaseDto);
 
     void deleteFriends(Long requestId, UserBaseDto userBaseDto);
+
+    Page<FindFriendsResponseDto> findAcceptFriends(UserBaseDto userBaseDto, Pageable pageable);
 }
