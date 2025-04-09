@@ -4,6 +4,7 @@ import com.sns.api.friends.domain.entity.Friends;
 import com.sns.api.users.domain.entity.Users;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Range;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -35,4 +36,39 @@ public interface FriendsRepository extends JpaRepository<Friends, Long> {
             end 
     """)
     Page<Friends> findAcceptedFriendsByLoginUserId(@Param("loginUserId") Long loginUserId, Pageable pageable);
+
+    /**
+     * 로그인 유저 Id를 기준으로 받은 친구 요청 데이터를 조회하는 쿼리
+     * @EntityGraph 사용하여 연관된 toUser 조회
+     *
+     * @param loginUserId 로그인 유저 Id
+     * @param pageable 페이징 정보
+     * @return 조회된 받은 친구 요청 데이터 반환(페이징 적용)
+     */
+    @EntityGraph(attributePaths = {"toUser"})
+    @Query("""
+        select f from Friends f
+        where f.toUser.id = :loginUserId
+            and f.status = 'PENDING'
+        order by f.toUser.username
+
+    """)
+    Page<Friends> findReceivedFriendsByLoginUserId(@Param("loginUserId") Long loginUserId, Pageable pageable);
+
+    /**
+     * 로그인 유저 Id를 기준으로 보낸 친구 요청 데이터를 조회하는 쿼리
+     * @EntityGraph 사용하여 연관된 fromUser 조회
+     *
+     * @param loginUserId 로그인 유저 Id
+     * @param pageable 페이징 정보
+     * @return 조회된 보낸 친구 요청 데이터 반환(페이징 적용)
+     */
+    @EntityGraph(attributePaths = {"fromUser"})
+    @Query("""
+        select f from Friends f
+        where f.fromUser.id = :loginUserId
+            and f.status = 'PENDING'
+        order by f.fromUser.username
+    """)
+    Page<Friends> findSentFriendsByLoginUserId(@Param("loginUserId") Long loginUserId, Pageable pageable);
 }

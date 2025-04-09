@@ -24,36 +24,75 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 @AllArgsConstructor
 public class FriendsServiceImpl implements FriendsService {
-
     private final FriendsRepository friendsRepository;
+
     private final UsersRepository usersRepository;
 
     /**
-     * 친구 조회 비즈니스 로직
+     * 내 친구 조회 비즈니스 로직
      * 조회된 Friends 정보들을 Dto로 변환할 때 내가 친구를 요청하거나, 친구 요청을 받았을 수 있으므로 동적으로 변환하여 처리
      *
      * @param userBaseDto 로그인 유저 정보
-     * @param pageable 페이징 정보
+     * @param pageable    페이징 정보
      * @return 조회된 Page<DTO>
      */
     @Override
     public Page<FindFriendsResponseDto> findAcceptFriends(UserBaseDto userBaseDto, Pageable pageable) {
-
         Long loginUserId = userBaseDto.getUserId();
 
         Page<FindFriendsResponseDto> findAcceptsFriends = friendsRepository.findAcceptedFriendsByLoginUserId(loginUserId, pageable)
                 .map(friends -> FindFriendsResponseDto.toMapDto(friends,
                         friends.getFromUser().getId().equals(loginUserId)
                                 ? friends.getToUser()
-                                : friends.getFromUser())
-
-                );
+                                : friends.getFromUser()));
 
         if (findAcceptsFriends.isEmpty()) { // 조회된 정보가 없으면 예외처리
-            throw new CustomException(ResultCode.NOT_FOUND, "조회된 회원이 없습니다.");
+            throw new CustomException(ResultCode.NOT_FOUND, "친구 목록이 존재하지 않습니다.");
         }
 
         return findAcceptsFriends;
+    }
+
+    /**
+     * 로그인한 사용자가 받은 친구 요청 조회 로직
+     *
+     * @param userBaseDto 로그인 유저 정보
+     * @param pageable 페이징 정보
+     * @return 조회된 Page<DTO>
+     */
+    @Override
+    public Page<FindFriendsResponseDto> findReceivedFriends(UserBaseDto userBaseDto, Pageable pageable) {
+        Long loginUserId = userBaseDto.getUserId();
+
+        Page<FindFriendsResponseDto> findReceivedFriends = friendsRepository.findReceivedFriendsByLoginUserId(loginUserId, pageable)
+                .map(friends -> FindFriendsResponseDto.toMapDto(friends, friends.getToUser()));
+
+        if (findReceivedFriends.isEmpty()) { // 조회된 정보가 없으면 예외처리
+            throw new CustomException(ResultCode.NOT_FOUND, "받은 친구 목록이 존재하지 않습니다.");
+        }
+
+        return findReceivedFriends;
+    }
+
+    /**
+     * 로그인한 사용자가 보낸 친구 요청 조회 로직
+     *
+     * @param userBaseDto 로그인 유저 정보
+     * @param pageable 페이징 정보
+     * @return 조회된 Page<DTO>
+     */
+    @Override
+    public Page<FindFriendsResponseDto> findSentFriends(UserBaseDto userBaseDto, Pageable pageable) {
+        Long loginUserId = userBaseDto.getUserId();
+
+        Page<FindFriendsResponseDto> findSentFriends = friendsRepository.findSentFriendsByLoginUserId(loginUserId, pageable)
+                .map(friends -> FindFriendsResponseDto.toMapDto(friends, friends.getFromUser()));
+
+        if (findSentFriends.isEmpty()) { // 조회된 정보가 없으면 예외처리
+            throw new CustomException(ResultCode.NOT_FOUND, "보낸 친구 목록이 존재하지 않습니다.");
+        }
+
+        return findSentFriends;
     }
 
     /**

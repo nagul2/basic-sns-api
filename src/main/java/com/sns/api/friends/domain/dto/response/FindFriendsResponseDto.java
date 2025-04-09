@@ -27,6 +27,6 @@ public class FindFriendsResponseDto {
                 friends.getCreatedAt(),
                 friends.getModifiedAt()
         );
-
     }
+
 }
