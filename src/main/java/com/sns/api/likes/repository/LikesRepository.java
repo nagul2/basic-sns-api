@@ -10,4 +10,6 @@ public interface LikesRepository extends JpaRepository<Likes, Long> {
     boolean existsByLikeTypeAndLikeTypeIdAndCreatedById(LikeType likeType, Long likeTypeId, Long createdBy);
 
     Optional<Likes> findByLikeTypeAndLikeTypeIdAndCreatedById(LikeType likeType, Long likeTypeId, Long createdBy);
+
+    Long countByLikeTypeAndLikeTypeId(LikeType likeType, Long likeTypeId);
 }

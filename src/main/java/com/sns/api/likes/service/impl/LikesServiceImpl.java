@@ -1,6 +1,7 @@
 package com.sns.api.likes.service.impl;
 
 import com.sns.api.common.domain.dto.UserBaseDto;
+import com.sns.api.likes.domain.dto.LikeCountResponseDto;
 import com.sns.api.likes.domain.dto.LikeResponseDto;
 import com.sns.api.likes.domain.entity.LikeType;
 import com.sns.api.likes.domain.entity.Likes;
@@ -58,6 +59,18 @@ public class LikesServiceImpl implements LikesService {
                 .orElseThrow(() -> new CustomException(ResultCode.VALID_FAIL, "삭제할 좋아요가 없습니다."));
 
         likesRepository.delete(likes);
+    }
+
+    @Override
+    public LikeCountResponseDto countLike(Long likeTypeId, LikeType likeType) {
+
+        // 해당 게시글이 있는지 조회
+        Posts posts = findByIdOrElseThrow(likeTypeId);
+
+        // 해당 게시글의 좋아요 수를 계산
+        Long likeCount = likesRepository.countByLikeTypeAndLikeTypeId(likeType, likeTypeId);
+
+        return LikeCountResponseDto.fromEntity(likeTypeId, likeCount);
     }
 
     private Posts findByIdOrElseThrow(Long id) {
