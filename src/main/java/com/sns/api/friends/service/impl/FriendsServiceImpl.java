@@ -27,7 +27,7 @@ public class FriendsServiceImpl implements FriendsService {
     /**
      * 친구 요청 저장
      *
-     * @param requestDto 요청 받은 UserId
+     * @param requestDto  요청 받은 UserId
      * @param userBaseDto 요청 한 User Id
      * @return 응답 DTO
      */
@@ -54,8 +54,8 @@ public class FriendsServiceImpl implements FriendsService {
     /**
      * 친구 수락/거절/취소 처리
      *
-     * @param friendsId 요청한 Friends 테이블의 PK 값
-     * @param requestDto 요청 상태값
+     * @param friendsId   요청한 Friends 테이블의 PK 값
+     * @param requestDto  요청 상태값
      * @param userBaseDto 로그인 유저 정보
      * @return 수락 시 응답 DTO, 거절 및 취소 시 null 반환
      */
@@ -64,19 +64,33 @@ public class FriendsServiceImpl implements FriendsService {
     public CommonFriendsResponseDto actionFriend(Long friendsId, ActionFriendsRequestDto requestDto, UserBaseDto userBaseDto) {
 
         Friends findFriends = findFriendsByIdOrElseThrow(friendsId);
-        Long loginUserId = userBaseDto.getUserId();
-        Long senderId = findFriends.getFromUser().getId();
-        Long receiverId = findFriends.getToUser().getId();
-
-        if (!loginUserId.equals(senderId) && !loginUserId.equals(receiverId)) {
-            throw new CustomException(ResultCode.ACCESS_DENIED, "접근 권한이 없습니다.");
-        }
+        validateAccess(findFriends, userBaseDto);    // 권한 검증 메서드
 
         if (findFriends.getStatus() == FriendsStatus.ACCEPT) {
             throw new CustomException(ResultCode.VALID_FAIL, "이미 수락된 친구입니다.");
         }
 
         return actionFriendStatus(requestDto, findFriends);
+    }
+
+    /**
+     * 친구 삭제 처리
+     *
+     * @param requestId 요청한 Friends 테이블의 PK 값
+     * @param userBaseDto 로그인 유저 정보
+     */
+    @Override
+    @Transactional
+    public void deleteFriends(Long requestId, UserBaseDto userBaseDto) {
+
+        Friends findFriends = findFriendsByIdOrElseThrow(requestId);
+        validateAccess(findFriends, userBaseDto);    // 권한 검증 메서드
+
+        if (findFriends.getStatus() != FriendsStatus.ACCEPT) {  // 상태가 ACCEPT가 아니면 예외
+            throw new CustomException(ResultCode.VALID_FAIL, "잘못된 요청값 입니다.");
+        }
+
+        friendsRepository.delete(findFriends);
     }
 
     /**
@@ -107,9 +121,9 @@ public class FriendsServiceImpl implements FriendsService {
      * 요청 거절, 취소 -> Friends 테이블에서 데이터 삭제 및 null 반환
      * PENDING 및 잘못된 요청 시 400 예외 발생
      *
-     * @param requestDto
-     * @param findFriends
-     * @return
+     * @param requestDto 전달된 요청 값
+     * @param findFriends 찾은 Friends
+     * @return 응답할 DTO
      */
     private CommonFriendsResponseDto actionFriendStatus(ActionFriendsRequestDto requestDto, Friends findFriends) {
         switch (requestDto.getStatus()) {
@@ -121,8 +135,25 @@ public class FriendsServiceImpl implements FriendsService {
                 friendsRepository.delete(findFriends);
                 return null;
             }
-
             default -> throw new CustomException(ResultCode.VALID_FAIL, "잘못된 요청값 입니다.");
+        }
+    }
+
+    /**
+     * 로그인한 사용자가 조회된 friends의 fromUser, toUser에 포함되는지 검증하는 메서드
+     * 검증 실패 시 403 예외 발생
+     *
+     * @param findFriends 조회된 friends
+     * @param userBaseDto 로그인한 User 정보
+     */
+    private void validateAccess(Friends findFriends, UserBaseDto userBaseDto) {
+
+        Long loginUserId = userBaseDto.getUserId();
+        Long senderId = findFriends.getFromUser().getId();
+        Long receiverId = findFriends.getToUser().getId();
+
+        if (!loginUserId.equals(senderId) && !loginUserId.equals(receiverId)) {
+            throw new CustomException(ResultCode.ACCESS_DENIED, "접근 권한이 없습니다.");
         }
     }
 }
