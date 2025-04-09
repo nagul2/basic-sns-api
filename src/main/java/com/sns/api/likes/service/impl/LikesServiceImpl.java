@@ -46,6 +46,20 @@ public class LikesServiceImpl implements LikesService {
         return LikeResponseDto.fromEntity(savedLike);
     }
 
+    @Override
+    public void deleteLike(Long likeTypeId, LikeType likeType, UserBaseDto userBaseDto) {
+
+        // 해당 게시글이 있는지 조회
+        Posts posts = findByIdOrElseThrow(likeTypeId);
+
+        // 자신이 누른 좋아요를 조회 (하나의 게시글에는 하나의 결과만 나옴)
+        Likes likes = likesRepository.findByLikeTypeAndLikeTypeIdAndCreatedById(likeType, likeTypeId,
+                        userBaseDto.getUserId())
+                .orElseThrow(() -> new CustomException(ResultCode.VALID_FAIL, "삭제할 좋아요가 없습니다."));
+
+        likesRepository.delete(likes);
+    }
+
     private Posts findByIdOrElseThrow(Long id) {
 
         return postsRepository.findById(id).orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
