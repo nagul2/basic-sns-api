@@ -22,7 +22,7 @@ public class FriendsController {
     /**
      * 친구 요청 API
      *
-     * @param requestDto 요청 받은 UserId
+     * @param requestDto  요청 받은 UserId
      * @param userBaseDto 요청 한 User Id
      * @return 성공 시 DTO 및 201 응답
      */
@@ -35,8 +35,8 @@ public class FriendsController {
     /**
      * 친구 요청 수락/거절/취소 API
      *
-     * @param requestId 요청한 Friends 테이블의 PK 값
-     * @param requestDto 요청 상태값
+     * @param requestId   요청한 Friends 테이블의 PK 값
+     * @param requestDto  요청 상태값
      * @param userBaseDto 로그인 유저 정보
      * @return 수락 시 응답 DTO 및 200 응답, 거절, 취소 시 null 및 204 응답
      */
@@ -52,4 +52,19 @@ public class FriendsController {
 
         return BaseResponse.success(commonFriendsResponseDto, ResultCode.OK);
     }
+
+    /**
+     * 친구 삭제 API(ACCEPT)
+     *
+     * @param requestId 삭제할 대상 PK
+     * @param userBaseDto 로그인한 유저
+     * @return 204 응답
+     */
+    @DeleteMapping("/{requestId}")
+    public BaseResponse<Void> deleteFriends(@PathVariable Long requestId,
+                                            @SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto) {
+        friendsService.deleteFriends(requestId, userBaseDto);
+        return BaseResponse.success(null, ResultCode.NO_CONTENT);
+    }
+
 }
