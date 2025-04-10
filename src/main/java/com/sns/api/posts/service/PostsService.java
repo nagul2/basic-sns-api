@@ -5,6 +5,7 @@ import com.sns.api.posts.domain.dto.request.PostCreateRequestDto;
 import com.sns.api.posts.domain.dto.request.PostSearchRequestDto;
 import com.sns.api.posts.domain.dto.request.PostUpdateRequestDto;
 import com.sns.api.posts.domain.dto.response.PostResponseDto;
+import com.sns.api.posts.domain.dto.response.PostWithCommentsResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -12,7 +13,7 @@ public interface PostsService {
 
     PostResponseDto createPost(PostCreateRequestDto createRequestDto);
 
-    PostResponseDto getPostById(Long postId);
+    PostWithCommentsResponseDto getPostById(Long postId);
 
     Page<PostResponseDto> getPosts(PostSearchRequestDto searchRequestDto, Pageable pageable);
 

@@ -1,10 +1,14 @@
 package com.sns.api.posts.service.impl;
 
+import com.sns.api.comments.domain.entity.Comments;
+import com.sns.api.comments.repository.CommentsRepository;
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.posts.domain.dto.request.PostCreateRequestDto;
 import com.sns.api.posts.domain.dto.request.PostSearchRequestDto;
 import com.sns.api.posts.domain.dto.request.PostUpdateRequestDto;
+import com.sns.api.posts.domain.dto.response.PostFlatDto;
 import com.sns.api.posts.domain.dto.response.PostResponseDto;
+import com.sns.api.posts.domain.dto.response.PostWithCommentsResponseDto;
 import com.sns.api.posts.domain.entity.Posts;
 import com.sns.api.posts.repository.PostsRepository;
 import com.sns.api.posts.service.PostsService;
@@ -14,7 +18,9 @@ import com.sns.common.component.ResultCode;
 import com.sns.common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +31,9 @@ import java.util.Objects;
 public class PostsServiceImpl implements PostsService {
 
     private final PostsRepository postsRepository;
+
     private final UsersRepository usersRepository;
+    private final CommentsRepository commentsRepository;
 
     @Transactional
     @Override
@@ -40,13 +48,28 @@ public class PostsServiceImpl implements PostsService {
         return PostResponseDto.fromEntity(savedPost);
     }
 
+    /**
+     * 게시물 단건 조회
+     * 게시물에 속한 댓글들도 함께 조회한다.
+     * 댓글은 기본적으로 0 페이지의 데이터를 조회하며, 만약 추가적인 데이터가 필요하다면 GET `/api/posts/{postId}/comments` API 사용
+     * @see com.sns.api.comments.controller.CommentsController#getComments(Long, Pageable)
+     *
+     * @param postId 조회할 게시물 ID
+     * @return 댓글 리스트를 포함한 게시물 상세 정보 DTO
+     */
     @Transactional(readOnly = true)
     @Override
-    public PostResponseDto getPostById(Long postId) {
+    public PostWithCommentsResponseDto getPostById(Long postId) {
 
         Posts post = getPostByIdOrElseThrow(postId);
 
-        return PostResponseDto.fromEntity(post);
+        // 댓글 조회
+        Page<Comments> comments = commentsRepository.findAllByPost(
+                post,
+                PageRequest.of(0, 10, Sort.by("createdBy").descending())
+        );
+
+        return PostWithCommentsResponseDto.fromEntity(post, comments);
     }
 
     /**
@@ -62,16 +85,16 @@ public class PostsServiceImpl implements PostsService {
         // 기간별 검색
         // startDate, endDate 모두 null 값이 아니고, startDate <= endDate 이어야 기간별 검색 쿼리를 수행
         if (searchRequestDto.hasValidValue()) {
-            Page<Posts> findPosts = postsRepository.findPostsByCreatedAt(
+            Page<PostFlatDto> findPosts = postsRepository.findPostsByCreatedAt(
                     searchRequestDto.getStartDate(),
                     searchRequestDto.getEndDate(),
                     pageable
             );
-            return findPosts.map(PostResponseDto::fromEntity);
+            return findPosts.map(PostResponseDto::fromFlatDto);
         }
         
         // 일반 검색
-        return postsRepository.findAll(pageable).map(PostResponseDto::fromEntity);
+        return postsRepository.findAllWithCommentCount(pageable).map(PostResponseDto::fromFlatDto);
     }
 
     @Transactional

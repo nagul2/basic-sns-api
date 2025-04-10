@@ -5,6 +5,7 @@ import com.sns.api.posts.domain.dto.request.PostCreateRequestDto;
 import com.sns.api.posts.domain.dto.request.PostSearchRequestDto;
 import com.sns.api.posts.domain.dto.request.PostUpdateRequestDto;
 import com.sns.api.posts.domain.dto.response.PostResponseDto;
+import com.sns.api.posts.domain.dto.response.PostWithCommentsResponseDto;
 import com.sns.api.posts.service.PostsService;
 import com.sns.common.component.BaseResponse;
 import com.sns.common.component.Const;
@@ -33,11 +34,11 @@ public class PostsController {
     }
 
     @GetMapping("/{postId}")
-    public BaseResponse<PostResponseDto> getPost(@PathVariable Long postId) {
+    public BaseResponse<PostWithCommentsResponseDto> getPost(@PathVariable Long postId) {
 
-        PostResponseDto post = postsService.getPostById(postId);
+        PostWithCommentsResponseDto postWithComments = postsService.getPostById(postId);
 
-        return BaseResponse.success(post, ResultCode.OK);
+        return BaseResponse.success(postWithComments, ResultCode.OK);
     }
 
     @GetMapping
