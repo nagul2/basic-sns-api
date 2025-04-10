@@ -1,6 +1,5 @@
 package com.sns.api.likes.service.impl;
 
-import com.sns.api.comments.domain.entity.Comments;
 import com.sns.api.comments.repository.CommentsRepository;
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.likes.domain.dto.LikeCountResponseDto;
@@ -9,7 +8,6 @@ import com.sns.api.likes.domain.entity.LikeType;
 import com.sns.api.likes.domain.entity.Likes;
 import com.sns.api.likes.repository.LikesRepository;
 import com.sns.api.likes.service.LikesService;
-import com.sns.api.posts.domain.entity.Posts;
 import com.sns.api.posts.repository.PostsRepository;
 import com.sns.common.component.ResultCode;
 import com.sns.common.exception.CustomException;
@@ -75,22 +73,16 @@ public class LikesServiceImpl implements LikesService {
 
     private void validateCreateLike(Long id, LikeType likeType, Long userId) {
 
-        switch (likeType) {
-            case POST -> {
-                Posts posts = postsRepository.findById(id).orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
+        Long writerId = switch (likeType) {
+            case POST -> postsRepository.findById(id).orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND))
+                    .getCreatedBy().getId();
 
-                if (Objects.equals(posts.getCreatedBy().getId(), userId)) {
-                    throw new CustomException(ResultCode.VALID_FAIL, "본인이 작성한 게시글에는 좋아요를 남길 수 없습니다.");
-                }
-            }
-            case COMMENT -> {
-                Comments comments = commentsRepository.findById(id)
-                        .orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
+            case COMMENT -> commentsRepository.findById(id)
+                    .orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND)).getCreatedBy().getId();
+        };
 
-                if (Objects.equals(comments.getCreatedBy().getId(), userId)) {
-                    throw new CustomException(ResultCode.VALID_FAIL, "본인이 작성한 댓글에는 좋아요를 남길 수 없습니다.");
-                }
-            }
+        if (Objects.equals(writerId, userId)) {
+            throw new CustomException(ResultCode.VALID_FAIL, "본인이 작성한 게시글에는 좋아요를 남길 수 없습니다.");
         }
     }
 
