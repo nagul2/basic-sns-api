@@ -62,7 +62,8 @@ public class PostsServiceImpl implements PostsService {
     @Override
     public PostWithCommentsResponseDto getPostById(Long postId, UserBaseDto userBaseDto) {
 
-        Posts post = getPostByIdOrElseThrow(postId);
+        PostResponseDto postResponseDto = postsRepository.findPostWithQuery(postId, userBaseDto.getUserId())
+                .orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND, "존재하지 않는 게시글 ID 입니다.: " + postId));
 
         // 댓글 조회
         Page<Comments> comments = commentsRepository.findAllByPost_Id(
@@ -70,7 +71,7 @@ public class PostsServiceImpl implements PostsService {
                 PageRequest.of(0, 10, Sort.by("createdBy").descending())
         );
 
-        return PostWithCommentsResponseDto.fromEntity(post, comments);
+        return PostWithCommentsResponseDto.of(postResponseDto, comments);
     }
 
     /**

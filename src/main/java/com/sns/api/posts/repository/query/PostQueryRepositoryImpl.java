@@ -23,6 +23,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -30,33 +31,48 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
 
     private final JPAQueryFactory queryFactory;
 
+    private final QPosts posts = QPosts.posts;
+    private final QUsers users = QUsers.users;
+    private final QComments comments = QComments.comments;
+    private final QLikes likes = QLikes.likes;
+
+    @Override
+    public Optional<PostResponseDto> findPostWithQuery(Long postId, Long userId) {
+
+        return Optional.ofNullable(
+                queryFactory
+                        .select(new QPostResponseDto(
+                                posts.id,
+                                new QUserBaseDto(
+                                        users.id,
+                                        users.username
+                                ),
+                                posts.content,
+                                getCommentCountSubQuery(),
+                                getLikesCountSubQuery(),
+                                getIsLikedSubQuery(userId),
+                                posts.createdAt,
+                                posts.modifiedAt
+                        ))
+                        .from(posts)
+                        .join(posts.createdBy, users)
+                        .where(posts.id.eq(postId))
+                        .fetchOne()
+        );
+    }
+
     @Override
     public Page<PostResponseDto> findAllWithQuery(Long userId,
                                                   LocalDateTime startDate,
                                                   LocalDateTime endDate,
                                                   Pageable pageable) {
 
-        QPosts posts = QPosts.posts;
-        QUsers users = QUsers.users;
-        QComments comments = QComments.comments;
-        QLikes likes = QLikes.likes;
-
-        // 댓글 개수 서브 쿼리
-        JPQLQuery<Long> commentCountSubQuery = JPAExpressions.select(comments.count())
-                .from(comments)
-                .where(comments.post.eq(posts));
-
-        // 좋아요 개수 서브 쿼리
-        JPQLQuery<Long> likesCountSubQuery = JPAExpressions.select(likes.count())
-                .from(likes)
-                .where(likeCountCondition(likes, posts));
-
         // 정렬 조건 동적 분기
         OrderSpecifier<?> orderSpecifier = switch (pageable.getSort().toString().split(":")[0]) {
-            case "comment" -> new OrderSpecifier<>(Order.DESC, commentCountSubQuery);   // 댓글 많은 순
-            case "like" -> new OrderSpecifier<>(Order.DESC, likesCountSubQuery);        // 좋아요 많은 순
-            case "modifiedAt" -> new OrderSpecifier<>(Order.DESC, posts.modifiedAt);    // 수정일 기준 내림차순
-            default -> posts.createdAt.desc();                                          // 기본 (생성일 기준 내림차순)
+            case "comment" -> new OrderSpecifier<>(Order.DESC, getCommentCountSubQuery());   // 댓글 많은 순
+            case "like" -> new OrderSpecifier<>(Order.DESC, getLikesCountSubQuery());        // 좋아요 많은 순
+            case "modifiedAt" -> new OrderSpecifier<>(Order.DESC, posts.modifiedAt);         // 수정일 기준 내림차순
+            default -> posts.createdAt.desc();                                               // 기본 (생성일 기준 내림차순)
         };
 
         // 동적 where 조건 빌더
@@ -83,12 +99,9 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                                 users.username
                         ),
                         posts.content,
-                        commentCountSubQuery,
-                        likesCountSubQuery,
-                        JPAExpressions.selectOne()
-                                .from(likes)
-                                .where(likedByMeCondition(likes, userId))
-                                .exists(),
+                        getCommentCountSubQuery(),
+                        getLikesCountSubQuery(),
+                        getIsLikedSubQuery(userId),
                         posts.createdAt,
                         posts.modifiedAt
                 ))
@@ -110,12 +123,36 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
         return new PageImpl<>(results, pageable, total != null ? total : 0);
     }
 
+    // 댓글 개수 서브 쿼리
+    private JPQLQuery<Long> getCommentCountSubQuery() {
+        return JPAExpressions.select(comments.count())
+                .from(comments)
+                .where(comments.post.eq(posts));
+    }
+
+    // 좋아요 개수 서브 쿼리
+    private JPQLQuery<Long> getLikesCountSubQuery() {
+        return JPAExpressions.select(likes.count())
+                .from(likes)
+                .where(likeCountCondition(likes, posts));
+    }
+
+    private BooleanExpression getIsLikedSubQuery(Long userId) {
+        return JPAExpressions.selectOne()
+                .from(likes)
+                .where(likedByMeCondition(likes, userId))
+                .exists();
+    }
+
     private BooleanExpression likeCountCondition(QLikes likes, QPosts posts) {
-        return likes.likeType.eq(LikeType.POST).and(likes.likeTypeId.eq(posts.id));
+        return likes.likeType.eq(LikeType.POST)
+                .and(likes.likeTypeId.eq(posts.id));
     }
 
     private BooleanExpression likedByMeCondition(QLikes likes, Long userId) {
-        return likes.likeType.eq(LikeType.POST).and(likes.createdBy.id.eq(userId));
+        return likes.likeType.eq(LikeType.POST)
+                .and(likes.likeTypeId.eq(posts.id))
+                .and(likes.createdBy.id.eq(userId));
     }
 
 }

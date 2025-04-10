@@ -34,9 +34,10 @@ public class PostsController {
     }
 
     @GetMapping("/{postId}")
-    public BaseResponse<PostWithCommentsResponseDto> getPost(@PathVariable Long postId) {
+    public BaseResponse<PostWithCommentsResponseDto> getPost(@PathVariable Long postId,
+                                                             @SessionAttribute(name = Const.LOGIN_USER) UserBaseDto userBaseDto) {
 
-        PostWithCommentsResponseDto postWithComments = postsService.getPostById(postId);
+        PostWithCommentsResponseDto postWithComments = postsService.getPostById(postId, userBaseDto);
 
         return BaseResponse.success(postWithComments, ResultCode.OK);
     }
