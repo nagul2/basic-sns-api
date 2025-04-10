@@ -11,10 +11,11 @@ import com.sns.api.users.repository.UsersRepository;
 import com.sns.common.component.ResultCode;
 import com.sns.common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,6 +26,13 @@ public class FollowsServiceImpl implements FollowsService {
 
     private final UsersRepository usersRepository;
 
+    /**
+     * 팔로우 저장
+     *
+     * @param requestDto  팔로잉 user
+     * @param userBaseDto 팔로워 user
+     * @return 응답 DTO
+     */
     @Override
     @Transactional
     public FollowsResponseDto follow(FollowsRequestDto requestDto, UserBaseDto userBaseDto) {
@@ -51,7 +59,15 @@ public class FollowsServiceImpl implements FollowsService {
         return FollowsResponseDto.fromEntity(saveFollows);
     }
 
+    /**
+     * 팔로우 취소
+     *
+     * @param followId   요청한 follows 테이블의 PK 값
+     * @param userBaseDto 로그인 유저 정보
+     *  팔로잉, 팔로워 둘다 속하지 않으면 exception
+     */
     @Override
+    @Transactional
     public void unFollow(Long followId, UserBaseDto userBaseDto) {
         Long userId = userBaseDto.getUserId();
 
@@ -66,19 +82,31 @@ public class FollowsServiceImpl implements FollowsService {
         followsRepository.delete(follows);
     }
 
+    /**
+     * 로그인한 사용자의 팔로워 조회 로직
+     *
+     * @param userBaseDto 로그인 유저 정보
+     * @param pageable 페이징 정보
+     * @return 조회된 Page<DTO>
+     */
     @Override
-    public List<FollowsResponseDto> getFollowers(UserBaseDto userBaseDto) {
-        return followsRepository.findAllByFollowingIdWithActiveMember(userBaseDto.getUserId())
-                .stream()
-                .map(FollowsResponseDto::fromEntity)
-                .toList();
+    @Transactional(readOnly = true)
+    public Page<FollowsResponseDto> getFollowers(UserBaseDto userBaseDto, Pageable pageable) {
+        return followsRepository.findAllByFollowingIdWithActiveMember(userBaseDto.getUserId(), pageable)
+                .map(FollowsResponseDto::fromEntity);
     }
 
+    /**
+     * 로그인한 사용자의 팔로잉 조회 로직
+     *
+     * @param userBaseDto 로그인 유저 정보
+     * @param pageable 페이징 정보
+     * @return 조회된 Page<DTO>
+     */
     @Override
-    public List<FollowsResponseDto> getFollowings(UserBaseDto userBaseDto) {
-        return followsRepository.findAllByFollowerIdWithActiveMember(userBaseDto.getUserId())
-                .stream()
-                .map(FollowsResponseDto::fromEntity)
-                .toList();
+    @Transactional(readOnly = true)
+    public Page<FollowsResponseDto> getFollowings(UserBaseDto userBaseDto, Pageable pageable) {
+        return followsRepository.findAllByFollowerIdWithActiveMember(userBaseDto.getUserId(), pageable)
+                .map(FollowsResponseDto::fromEntity);
     }
 }
