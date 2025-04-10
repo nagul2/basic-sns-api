@@ -1,5 +1,6 @@
 package com.sns.api.common.domain.dto;
 
+import com.querydsl.core.annotations.QueryProjection;
 import com.sns.api.users.domain.entity.Users;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -18,4 +19,11 @@ public class UserBaseDto {
                 .username(entity.getUsername())
                 .build();
     }
+
+    @QueryProjection
+    public UserBaseDto(Long userId, String username) {
+        this.userId = userId;
+        this.username = username;
+    }
+
 }

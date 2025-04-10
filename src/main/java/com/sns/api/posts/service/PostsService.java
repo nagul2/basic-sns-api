@@ -13,9 +13,9 @@ public interface PostsService {
 
     PostResponseDto createPost(PostCreateRequestDto createRequestDto);
 
-    PostWithCommentsResponseDto getPostById(Long postId);
+    PostWithCommentsResponseDto getPostById(Long postId, UserBaseDto userBaseDto);
 
-    Page<PostResponseDto> getPosts(PostSearchRequestDto searchRequestDto, Pageable pageable);
+    Page<PostResponseDto> getPosts(PostSearchRequestDto searchRequestDto, Pageable pageable, UserBaseDto userBaseDto);
 
     PostResponseDto updatePost(Long postId, PostUpdateRequestDto updateRequestDto, UserBaseDto userBaseDto);
 

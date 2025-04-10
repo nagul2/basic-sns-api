@@ -6,7 +6,6 @@ import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.posts.domain.dto.request.PostCreateRequestDto;
 import com.sns.api.posts.domain.dto.request.PostSearchRequestDto;
 import com.sns.api.posts.domain.dto.request.PostUpdateRequestDto;
-import com.sns.api.posts.domain.dto.response.PostFlatDto;
 import com.sns.api.posts.domain.dto.response.PostResponseDto;
 import com.sns.api.posts.domain.dto.response.PostWithCommentsResponseDto;
 import com.sns.api.posts.domain.entity.Posts;
@@ -24,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Service
@@ -50,51 +50,56 @@ public class PostsServiceImpl implements PostsService {
 
     /**
      * 게시물 단건 조회
-     * 게시물에 속한 댓글들도 함께 조회한다.
-     * 댓글은 기본적으로 0 페이지의 데이터를 조회하며, 만약 추가적인 데이터가 필요하다면 GET `/api/posts/{postId}/comments` API 사용
+     * - 게시물에 속한 댓글들도 함께 조회한다.
+     * - 댓글은 기본적으로 0 페이지의 데이터를 조회하며, 만약 추가적인 데이터가 필요하다면 GET `/api/posts/{postId}/comments` API 사용
      * @see com.sns.api.comments.controller.CommentsController#getComments(Long, Pageable)
      *
-     * @param postId 조회할 게시물 ID
-     * @return 댓글 리스트를 포함한 게시물 상세 정보 DTO
+     * @param postId        조회할 게시물 ID
+     * @param userBaseDto   로그인한 회원 정보
+     *
+     * @return 게시물 상세 정보
      */
     @Transactional(readOnly = true)
     @Override
-    public PostWithCommentsResponseDto getPostById(Long postId) {
+    public PostWithCommentsResponseDto getPostById(Long postId, UserBaseDto userBaseDto) {
 
-        Posts post = getPostByIdOrElseThrow(postId);
+        PostResponseDto postResponseDto = postsRepository.findPostWithQuery(postId, userBaseDto.getUserId())
+                .orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND, "존재하지 않는 게시글 ID 입니다.: " + postId));
 
         // 댓글 조회
-        Page<Comments> comments = commentsRepository.findAllByPost(
-                post,
+        Page<Comments> comments = commentsRepository.findAllByPost_Id(
+                postId,
                 PageRequest.of(0, 10, Sort.by("createdBy").descending())
         );
 
-        return PostWithCommentsResponseDto.fromEntity(post, comments);
+        return PostWithCommentsResponseDto.of(postResponseDto, comments);
     }
 
     /**
-     * 기본 정렬은 생성일자 기준으로 내림차순 정렬
-     * 10개씩 페이지네이션
-     * @param pageable 페이징 정보
-     * @return Page 객체
+     * 게시물 전체 조회
+     * - 검색 데이터를 활용하여 게시물 조회
+     * - 페이징 정보에 포함되어 있는 정렬 기준으로 데이터 조회 (기본은 생성일자 기준 내림차순)
+     * 
+     * @param searchRequestDto  검색 데이터
+     * @param pageable          페이징 정보
+     * @param userBaseDto       로그인한 회원 정보
+     *
+     * @return  게시물 목록 및 상세 정보 (페이징 적용)
      */
     @Transactional(readOnly = true)
     @Override
-    public Page<PostResponseDto> getPosts(PostSearchRequestDto searchRequestDto, Pageable pageable) {
+    public Page<PostResponseDto> getPosts(PostSearchRequestDto searchRequestDto, Pageable pageable, UserBaseDto userBaseDto) {
 
-        // 기간별 검색
-        // startDate, endDate 모두 null 값이 아니고, startDate <= endDate 이어야 기간별 검색 쿼리를 수행
+        LocalDateTime startDate = null;
+        LocalDateTime endDate = null;
+
+        // startDate, endDate 모두 null 값이 아니고, startDate <= endDate 이면 값 할당
         if (searchRequestDto.hasValidValue()) {
-            Page<PostFlatDto> findPosts = postsRepository.findPostsByCreatedAt(
-                    searchRequestDto.getStartDate(),
-                    searchRequestDto.getEndDate(),
-                    pageable
-            );
-            return findPosts.map(PostResponseDto::fromFlatDto);
+            startDate = searchRequestDto.getStartDate();
+            endDate = searchRequestDto.getEndDate();
         }
-        
-        // 일반 검색
-        return postsRepository.findAllWithCommentCount(pageable).map(PostResponseDto::fromFlatDto);
+
+        return postsRepository.findAllWithQuery(userBaseDto.getUserId(), startDate, endDate, pageable);
     }
 
     @Transactional
