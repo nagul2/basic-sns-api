@@ -3,10 +3,15 @@ package com.sns.common.init;
 import com.sns.api.auth.service.AuthService;
 import com.sns.api.comments.domain.entity.Comments;
 import com.sns.api.comments.repository.CommentsRepository;
+import com.sns.api.follow.domain.entity.Follows;
+import com.sns.api.follow.repository.FollowsRepository;
 import com.sns.api.friends.domain.entity.Friends;
 import com.sns.api.friends.domain.entity.FriendsStatus;
 import com.sns.api.friends.repository.FriendsRepository;
 import com.sns.api.friends.service.FriendsService;
+import com.sns.api.likes.domain.entity.LikeType;
+import com.sns.api.likes.domain.entity.Likes;
+import com.sns.api.likes.repository.LikesRepository;
 import com.sns.api.posts.domain.entity.Posts;
 import com.sns.api.posts.repository.PostsRepository;
 import com.sns.api.users.domain.entity.MBTI;
@@ -36,6 +41,8 @@ public class DummyDataInit {
     private final PostsRepository postsRepository;
     private final CommentsRepository commentsRepository;
     private final FriendsRepository friendsRepository;
+    private final FollowsRepository followsRepository;
+    private final LikesRepository likesRepository;
 
     Random random = new Random();
     Faker koFaker = new Faker((new Locale("ko")));
@@ -170,7 +177,7 @@ public class DummyDataInit {
         }
         List<Friends> savedFriends = friendsRepository.saveAll(friends);
 
-        log.info("저장 댓글 개수: {}", savedFriends.size());
+        log.info("저장 좋아요 개수: {}", savedFriends.size());
         for (Friends savedFriend : savedFriends) {
             log.info("보낸 친구: {}", savedFriend.getFromUser().getUsername());
             log.info("받은 친구: {}", savedFriend.getFromUser().getUsername());
@@ -178,17 +185,98 @@ public class DummyDataInit {
     }
 
 
-    // todo: 그다음 팔로우 상태(랜덤 회원이 0 ~ 여러 회원에게 팔로우)
+    // 5. 랜덤한 회원끼리 팔로우 진행
     @EventListener(ApplicationReadyEvent.class)
     @Order(5)
     public void initFollow() {
+        List<Follows> follows = new ArrayList<>();
+        List<Users> users = usersRepository.findAll();
+        Set<String> existingFollowPair = new HashSet<>();
+
+        for (Users follower : users) {
+            int randomFollowCount = random.nextInt(5);
+            for (int i = 0; i < randomFollowCount; i++) {
+                Users randomFollowing = users.get(random.nextInt(users.size()));
+
+                if (follower.equals(randomFollowing)) {
+                    continue;
+                }
+
+                String key = follower.getId() + ":" + randomFollowing.getId();
+                if (existingFollowPair.contains(key)) {
+                    continue;
+                }
+
+                existingFollowPair.add(key);
+
+                Follows follow = new Follows(randomFollowing);
+                follow.setOnlyDummyCreatedBy(follower);
+
+                follows.add(follow);
+            }
+        }
+
+        List<Follows> savedFollows = followsRepository.saveAll(follows);
+        log.info("저장 팔로우 개수: {}", savedFollows.size());
+        for (Follows savedFollow : savedFollows) {
+            log.info("팔로워: {}", savedFollow.getFollower());
+            log.info("팔로잉: {}", savedFollow.getFollowing());
+        }
 
     }
 
-    // todo: 그다음 좋아요 상태(랜덤 회원이 0 ~ 여러 회원에게 팔로우)
+    // 6.랜덤한 댓글, 게시글에 랜덤 회원이 좋아요 클릭
     @EventListener(ApplicationReadyEvent.class)
     @Order(6)
     public void initLike() {
+        List<Users> users = usersRepository.findAll();
+        List<Posts> posts = postsRepository.findAll();
+        List<Comments> comments = commentsRepository.findAll();
+
+        List<Likes> likes = new ArrayList<>();
+        Set<String> existingLikeKeys = new HashSet<>();
+
+        // 게시글 좋아요
+        for (Posts post : posts) {
+            int randomPostLikeCount = random.nextInt(10);
+            for (int i = 0; i < randomPostLikeCount; i++) {
+                Users randomUser = users.get(random.nextInt(users.size()));
+                String key = "게시글" + post.getId() + ":" + randomUser.getId();
+                if (existingLikeKeys.contains(key)) {
+                    continue;
+                }
+                existingLikeKeys.add(key);
+
+                Likes like = new Likes(LikeType.POST, post.getId());
+                like.setOnlyDummyCreatedBy(randomUser);
+                likes.add(like);
+            }
+
+        }
+
+        // 댓글 좋아요
+        for (Comments comment : comments) {
+            int randomCommentLikeCount = random.nextInt(8);
+            for (int i = 0; i < randomCommentLikeCount; i++) {
+                Users randomUser = users.get(random.nextInt(users.size()));
+                String key = "댓글" + comment.getId() + ":" + randomUser.getId();
+                if (existingLikeKeys.contains(key)) {
+                    continue;
+                }
+                existingLikeKeys.add(key);
+
+                Likes like = new Likes(LikeType.COMMENT, comment.getId());
+                like.setOnlyDummyCreatedBy(randomUser);
+                likes.add(like);
+            }
+        }
+
+        List<Likes> savedLikes = likesRepository.saveAll(likes);
+        log.info("저장 좋아요 수: {}", savedLikes.size());
+        for (Likes savedLike : savedLikes) {
+            log.info("좋아요 타입: {}", savedLike.getLikeType());
+            log.info("좋아요 누른 유저 이름: {}", savedLike.getCreatedBy());
+        }
 
     }
 }

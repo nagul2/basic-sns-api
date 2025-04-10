@@ -52,4 +52,9 @@ public class Likes {
         this.likeType = likeType;
         this.likeTypeId = likeTypeId;
     }
+
+    // Dummy 데이터용 setter
+    public void setOnlyDummyCreatedBy(Users user) {
+        this.createdBy = user;
+    }
 }
