@@ -1,8 +1,11 @@
 package com.sns.common.init;
 
 import com.sns.api.auth.service.AuthService;
+import com.sns.api.comments.repository.CommentsRepository;
 import com.sns.api.comments.service.CommentsService;
 import com.sns.api.friends.service.FriendsService;
+import com.sns.api.posts.domain.entity.Posts;
+import com.sns.api.posts.repository.PostsRepository;
 import com.sns.api.posts.service.PostsService;
 import com.sns.api.users.domain.entity.MBTI;
 import com.sns.api.users.domain.entity.Users;
@@ -32,9 +35,8 @@ public class DummyDataInit {
 
     private final AuthService authService;
     private final UsersRepository usersRepository;
-
-    private final PostsService postsService;
-    private final CommentsService commentsService;
+    private final PostsRepository postsRepository;
+    private final CommentsRepository commentsRepository;
     private final FriendsService friendsService;
 
     Random random = new Random();
@@ -68,19 +70,39 @@ public class DummyDataInit {
             ));
         }
 
-        List<Users> saveUsers = usersRepository.saveAll(users);
-        log.info("저장 유저 개수: {}", saveUsers.size());
-        for (Users saveUser : saveUsers) {
-            log.info("저장된 유저 이메일: {}", saveUser.getEmail());
-            log.info("저장된 유저 이름: {}", saveUser.getUsername());
+        List<Users> savedUsers = usersRepository.saveAll(users);
+        log.info("저장 유저 개수: {}", savedUsers.size());
+        for (Users savedUser : savedUsers) {
+            log.info("저장된 유저 이메일: {}", savedUser.getEmail());
+            log.info("저장된 유저 이름: {}", savedUser.getUsername());
         }
     }
 
-    // todo: 그다음 게시글 추가 랜덤 회원이 45개(안쓴 회원도 있음)
+    // 2. 게시글 추가 랜덤 회원이 35개 작성
     @EventListener(ApplicationReadyEvent.class)
     @Order(2)
     public void initPosts() {
+        List<Posts> posts = new ArrayList<>();
+        List<Users> users = usersRepository.findAll();
 
+
+        for (int i = 0; i < 103; i++) {
+            int randomUserId = random.nextInt(25);
+            Users user = users.get(randomUserId);
+            Posts post = Posts.of("dummy 데이터 입니다" + i);
+            post.setOnlyDummyCreatedBy(user);
+            post.setOnlyDummyModifiedBy(user);
+
+            posts.add(post);
+        }
+
+        List<Posts> savedPosts = postsRepository.saveAll(posts);
+
+        log.info("저장 게시글 개수: {}", savedPosts.size());
+        for (Posts savedPost : savedPosts) {
+            log.info("저장된 게시글 내용: {}", savedPost.getContent());
+            log.info("게시글 유저 이름: {}", savedPost.getCreatedBy());
+        }
     }
 
 
