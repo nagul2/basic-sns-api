@@ -23,4 +23,10 @@ public class FollowsController {
             , @SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto) {
         return BaseResponse.success(followsService.follow(requestDto, userBaseDto), ResultCode.CREATED);
     }
+
+    @DeleteMapping("/{followId}")
+    public BaseResponse<Void> unFollow(@PathVariable Long followId, @SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto) {
+        followsService.unFollow(followId, userBaseDto);
+        return BaseResponse.success(null, ResultCode.NO_CONTENT);
+    }
 }

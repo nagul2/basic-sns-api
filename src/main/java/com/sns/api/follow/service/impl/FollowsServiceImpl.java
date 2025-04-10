@@ -49,4 +49,17 @@ public class FollowsServiceImpl implements FollowsService {
 
         return FollowsResponseDto.fromEntity(saveFollows);
     }
+
+    @Override
+    public void unFollow(Long followId, UserBaseDto userBaseDto) {
+        Follows follows = followsRepository.findById(followId)
+                .orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND, "해당 followId의 팔로우를 찾을 수 없습니다."));
+
+        if (!follows.getFollower().getId().equals(userBaseDto.getUserId())) {
+            throw new CustomException(ResultCode.ACCESS_DENIED, "팔로우 취소 권한이 없습니다.");
+        }
+
+        followsRepository.delete(follows);
+
+    }
 }
