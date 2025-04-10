@@ -35,12 +35,25 @@ public class UsersController {
 
     private final UsersService usersService;
 
+    /**
+     * 내 정보 조회 API
+     *
+     * @param dto 로그인 유저 정보
+     * @return 내 정보 및 200 OK 응답
+     */
     @GetMapping("/me")
     public BaseResponse<UsersResponseDto> getMyInfo(@SessionAttribute(Const.LOGIN_USER) UserBaseDto dto) {
 
         return BaseResponse.success(usersService.getMyInfo(dto.getUserId()), ResultCode.OK);
     }
 
+    /**
+     * 내 정보 수정 API
+     *
+     * @param userDto 로그인 유저 정보
+     * @param updateDto 수정할 정보
+     * @return 수정된 내 정보 및 200 OK 응답
+     */
     @PutMapping("/me")
     public BaseResponse<UsersResponseDto> updateMyInfo(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userDto,
                                                        @RequestBody @Valid UserUpdateRequestDto updateDto) {
@@ -48,18 +61,35 @@ public class UsersController {
         return BaseResponse.success(usersService.updateMyInfo(userDto.getUserId(), updateDto), ResultCode.OK);
     }
 
+    /**
+     * 회원 정보 조회 API
+     *
+     * @param id 조회할 회원 id
+     * @return 조회된 회원 정보 및 200 OK 응답
+     */
     @GetMapping("/{id}")
     public BaseResponse<UserReadResponseDto> findById(@PathVariable Long id) {
 
         return BaseResponse.success(usersService.findById(id), ResultCode.OK);
     }
 
+    /**
+     * 회원 검색 API
+     *
+     * @param pageable 페이징 정보
+     * @param username 검색할 회원 이름
+     * @param email 검색할 회원 이메일
+     * @param userBaseDto 로그인 유저 정보
+     * @return 검색된 회원 page 및 200 OK 응답
+     */
     @GetMapping
     public BaseResponse<Page<UserReadResponseDto>> searchUsers(
-            @PageableDefault(size = 5, page = 0, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam(required = false) String username, @RequestParam(required = false) String email) {
+            @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(required = false) String username, @RequestParam(required = false) String email,
+            @SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto) {
 
-        return BaseResponse.success(usersService.searchUsers(pageable, username, email), ResultCode.OK);
+        return BaseResponse.success(usersService.searchUsers(pageable, username, email, userBaseDto.getUserId()),
+                ResultCode.OK);
     }
 
     @DeleteMapping("/me")
