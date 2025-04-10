@@ -65,8 +65,8 @@ public class PostsServiceImpl implements PostsService {
         Posts post = getPostByIdOrElseThrow(postId);
 
         // 댓글 조회
-        Page<Comments> comments = commentsRepository.findAllByPost(
-                post,
+        Page<Comments> comments = commentsRepository.findAllByPost_Id(
+                postId,
                 PageRequest.of(0, 10, Sort.by("createdBy").descending())
         );
 

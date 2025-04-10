@@ -60,7 +60,7 @@ public class CommentsServiceImpl implements CommentsService {
 
         Posts post = getPostByIdOrElseThrow(postId);
 
-        Page<Comments> comments = commentsRepository.findAllByPost(post, pageable);
+        Page<Comments> comments = commentsRepository.findAllByPost_Id(post.getId(), pageable);
 
         return comments.map(CommentResponseDto::fromEntity);
     }
