@@ -37,6 +37,14 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
     private final QComments comments = QComments.comments;
     private final QLikes likes = QLikes.likes;
 
+    /**
+     * 게시물 단건 조회
+     * 
+     * @param postId    조회하려는 게시물 ID
+     * @param userId    로그인한 회원 정보
+     *                  
+     * @return  게시물/작성자 정보, 댓글 목록, 댓글 개수, 좋아요 개수, 로그인한 회원의 좋아요 여부 등의 데이터를 포함
+     */
     @Override
     public Optional<PostResponseDto> findPostWithQuery(Long postId, Long userId) {
 
@@ -62,6 +70,18 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
         );
     }
 
+    /**
+     * 게시물 전체 조회 (페이징 적용)
+     * - 클라이언트가 요청한 정렬 조건에 맞춰 데이터 조회
+     * - startDate, endDate 데이터가 유효하지 않으면 기간 전체 범위로 검색
+     *
+     * @param userId        로그인한 회원 ID
+     * @param startDate     생성일 기간별 검색 조건 (시작일)
+     * @param endDate       생성일 기간별 검색 조건 (종료일)
+     * @param pageable      page, size, 정렬 조건 등을 가지고 있는 페이징 객체
+     *
+     * @return  게시물/작성자 정보, 댓글 개수, 좋아요 개수, 로그인한 회원의 좋아요 여부 등의 데이터를 포함
+     */
     @Override
     public Page<PostResponseDto> findAllWithQuery(Long userId,
                                                   LocalDateTime startDate,
@@ -139,6 +159,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                 .where(likeCountCondition(likes, posts));
     }
 
+    // 좋아요 여부 서브 쿼리
     private BooleanExpression getIsLikedSubQuery(Long userId) {
         return JPAExpressions.selectOne()
                 .from(likes)
