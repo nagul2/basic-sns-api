@@ -1,6 +1,5 @@
 package com.sns.common.init;
 
-import com.sns.api.auth.service.AuthService;
 import com.sns.api.comments.domain.entity.Comments;
 import com.sns.api.comments.repository.CommentsRepository;
 import com.sns.api.follow.domain.entity.Follows;
@@ -8,7 +7,6 @@ import com.sns.api.follow.repository.FollowsRepository;
 import com.sns.api.friends.domain.entity.Friends;
 import com.sns.api.friends.domain.entity.FriendsStatus;
 import com.sns.api.friends.repository.FriendsRepository;
-import com.sns.api.friends.service.FriendsService;
 import com.sns.api.likes.domain.entity.LikeType;
 import com.sns.api.likes.domain.entity.Likes;
 import com.sns.api.likes.repository.LikesRepository;
