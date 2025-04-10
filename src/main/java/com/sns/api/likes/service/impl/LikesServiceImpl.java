@@ -14,6 +14,7 @@ import com.sns.common.exception.CustomException;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +27,7 @@ public class LikesServiceImpl implements LikesService {
     private final CommentsRepository commentsRepository;
 
     @Override
+    @Transactional
     public LikeResponseDto createLike(Long likeTypeId, LikeType likeType, UserBaseDto userBaseDto) {
 
         // 본인이 작성한 댓글/게시글인지 확인
@@ -46,6 +48,7 @@ public class LikesServiceImpl implements LikesService {
     }
 
     @Override
+    @Transactional
     public void deleteLike(Long likeTypeId, LikeType likeType, UserBaseDto userBaseDto) {
 
         // 해당 게시글/댓글이 있는지 조회
@@ -60,6 +63,7 @@ public class LikesServiceImpl implements LikesService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public LikeCountResponseDto countLike(Long likeTypeId, LikeType likeType) {
 
         // 해당 게시글/댓글이 있는지 조회
