@@ -56,10 +56,12 @@ public class UsersController {
 
     @GetMapping
     public BaseResponse<Page<UserReadResponseDto>> searchUsers(
-            @PageableDefault(size = 5, page = 0, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
-            @RequestParam(required = false) String username, @RequestParam(required = false) String email) {
+            @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(required = false) String username, @RequestParam(required = false) String email,
+            @SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto) {
 
-        return BaseResponse.success(usersService.searchUsers(pageable, username, email), ResultCode.OK);
+        return BaseResponse.success(usersService.searchUsers(pageable, username, email, userBaseDto.getUserId()),
+                ResultCode.OK);
     }
 
     @DeleteMapping("/me")

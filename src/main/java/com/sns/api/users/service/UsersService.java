@@ -16,7 +16,7 @@ public interface UsersService {
 
     UserReadResponseDto findById(Long id);
 
-    Page<UserReadResponseDto> searchUsers(Pageable pageable, String username, String email);
+    Page<UserReadResponseDto> searchUsers(Pageable pageable, String username, String email, Long userId);
 
     void deleteMe(Long id, UserDeleteRequestDto requestDto);
 

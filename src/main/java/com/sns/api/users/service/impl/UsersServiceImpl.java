@@ -1,5 +1,6 @@
 package com.sns.api.users.service.impl;
 
+import com.sns.api.friends.repository.FriendsRepository;
 import com.sns.api.users.domain.dto.UserReadResponseDto;
 import com.sns.api.users.domain.dto.UserUpdateRequestDto;
 import com.sns.api.users.domain.dto.PasswordUpdateDto;
@@ -13,9 +14,14 @@ import com.sns.common.component.ResultCode;
 import com.sns.common.config.PasswordEncoder;
 import com.sns.common.exception.CustomException;
 import jakarta.transaction.Transactional;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +32,8 @@ public class UsersServiceImpl implements UsersService {
     private final UsersRepository usersRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final FriendsRepository friendsRepository;
 
     @Override
     public UsersResponseDto getMyInfo(Long id) {
@@ -89,9 +97,18 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-    public Page<UserReadResponseDto> searchUsers(Pageable pageable, String username, String email) {
+    public Page<UserReadResponseDto> searchUsers(Pageable pageable, String username, String email, Long userId) {
 
-        return usersRepository.searchByUsernameAndEmail(pageable, username, email).map(UserReadResponseDto::fromEntity);
+        Set<Long> friendsIds = friendsRepository.findAcceptedFriendsByLoginUserId(userId, Pageable.unpaged()).stream()
+                .map(f -> f.getFromUser().getId().equals(userId) ? f.getToUser().getId() : f.getFromUser().getId())
+                .collect(Collectors.toSet());
+
+        Page<Users> usersPage = usersRepository.searchByUsernameAndEmail(pageable, username, email);
+
+        List<UserReadResponseDto> sortedList = usersPage.getContent().stream().map(UserReadResponseDto::fromEntity)
+                .sorted(Comparator.comparing((UserReadResponseDto u) -> !friendsIds.contains(u.getUserId()))).toList();
+
+        return new PageImpl<>(sortedList, pageable, usersPage.getTotalElements());
     }
 
     private Users findByIdOrElseThrow(Long id) {
