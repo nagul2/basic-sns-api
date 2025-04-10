@@ -15,6 +15,7 @@ import com.sns.api.posts.repository.PostsRepository;
 import com.sns.api.users.domain.entity.MBTI;
 import com.sns.api.users.domain.entity.Users;
 import com.sns.api.users.repository.UsersRepository;
+import com.sns.common.config.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.datafaker.Faker;
@@ -41,6 +42,8 @@ public class DummyDataInit {
     private final FriendsRepository friendsRepository;
     private final FollowsRepository followsRepository;
     private final LikesRepository likesRepository;
+    private final PasswordEncoder passwordEncoder;
+
 
     Random random = new Random();
     Faker koFaker = new Faker((new Locale("ko")));
@@ -67,7 +70,7 @@ public class DummyDataInit {
             users.add(new Users(
                     email,
                     username,
-                    "qwer1234!@#$",
+                    passwordEncoder.encode("qwer1234!@#$"),
                     birthStr,
                     mbti
             ));
