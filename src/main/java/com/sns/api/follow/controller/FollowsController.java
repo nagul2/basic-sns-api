@@ -42,7 +42,8 @@ public class FollowsController {
     }
 
     @GetMapping("/followings")
-    public BaseResponse<List<FollowsResponseDto>> getMyFollowings(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto) {
-        return BaseResponse.success(followsService.getFollowings(userBaseDto), ResultCode.OK);
+    public BaseResponse<Page<FollowsResponseDto>> getMyFollowings(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto,
+                                                                  @PageableDefault(size = 5) Pageable pageable) {
+        return BaseResponse.success(followsService.getFollowings(userBaseDto, pageable), ResultCode.OK);
     }
 }

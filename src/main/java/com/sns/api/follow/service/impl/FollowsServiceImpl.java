@@ -75,10 +75,8 @@ public class FollowsServiceImpl implements FollowsService {
     }
 
     @Override
-    public List<FollowsResponseDto> getFollowings(UserBaseDto userBaseDto) {
-        return followsRepository.findAllByFollowerIdWithActiveMember(userBaseDto.getUserId())
-                .stream()
-                .map(FollowsResponseDto::fromEntity)
-                .toList();
+    public Page<FollowsResponseDto> getFollowings(UserBaseDto userBaseDto, Pageable pageable) {
+        return followsRepository.findAllByFollowerIdWithActiveMember(userBaseDto.getUserId(), pageable)
+                .map(FollowsResponseDto::fromEntity);
     }
 }

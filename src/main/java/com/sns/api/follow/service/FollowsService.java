@@ -16,5 +16,5 @@ public interface FollowsService {
 
     Page<FollowsResponseDto> getFollowers(UserBaseDto userBaseDto, Pageable pageable);
 
-    List<FollowsResponseDto> getFollowings(UserBaseDto userBaseDto);
+    Page<FollowsResponseDto> getFollowings(UserBaseDto userBaseDto, Pageable pageable);
 }
