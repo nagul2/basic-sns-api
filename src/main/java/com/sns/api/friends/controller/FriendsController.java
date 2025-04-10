@@ -24,7 +24,7 @@ public class FriendsController {
     private final FriendsService friendsService;
 
     /**
-     * 내 친구 전체 조회
+     * 내 친구 전체 조회 API
      *
      * @param userBaseDto 로그인 유저 정보
      * @param pageable 페이징 정보(기본 5개씩 출력)
@@ -34,6 +34,32 @@ public class FriendsController {
     public BaseResponse<Page<FindFriendsResponseDto>> findAcceptFriends(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto,
                                                                         @PageableDefault(size = 5) Pageable pageable) {
         return BaseResponse.success(friendsService.findAcceptFriends(userBaseDto, pageable), ResultCode.OK);
+    }
+
+    /**
+     * 내가 받은 친구 요청 전체 조회 API
+     *
+     * @param userBaseDto 로그인 유저 정보
+     * @param pageable 페이징 정보(기본 5개씩 출력)
+     * @return 조회된 받은 친구 요청 Page<DTO> 및 200 응답
+     */
+    @GetMapping("/request/received")
+    public BaseResponse<Page<FindFriendsResponseDto>> findReceivedFriends(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto,
+                                                                        @PageableDefault(size = 5) Pageable pageable) {
+        return BaseResponse.success(friendsService.findReceivedFriends(userBaseDto, pageable), ResultCode.OK);
+    }
+
+    /**
+     * 내가 보낸 친구 요청 전체 조회 API
+     *
+     * @param userBaseDto 로그인 유저 정보
+     * @param pageable 페이징 정보(기본 5개씩 출력)
+     * @return 조회된 보낸 친구 요청 Page<DTO> 및 200 응답
+     */
+    @GetMapping("/request/sent")
+    public BaseResponse<Page<FindFriendsResponseDto>> findSentFriends(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto,
+                                                                        @PageableDefault(size = 5) Pageable pageable) {
+        return BaseResponse.success(friendsService.findSentFriends(userBaseDto, pageable), ResultCode.OK);
     }
 
     /**

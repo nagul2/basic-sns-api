@@ -9,11 +9,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface FriendsService {
+    Page<FindFriendsResponseDto> findAcceptFriends(UserBaseDto userBaseDto, Pageable pageable);
+
+    Page<FindFriendsResponseDto> findReceivedFriends(UserBaseDto userBaseDto, Pageable pageable);
+
+    Page<FindFriendsResponseDto> findSentFriends(UserBaseDto userBaseDto, Pageable pageable);
+
     CommonFriendsResponseDto requestFriend(SendFriendsRequestDto requestDto, UserBaseDto userBaseDto);
 
     CommonFriendsResponseDto actionFriend(Long friendsId, ActionFriendsRequestDto requestDto, UserBaseDto userBaseDto);
 
     void deleteFriends(Long requestId, UserBaseDto userBaseDto);
-
-    Page<FindFriendsResponseDto> findAcceptFriends(UserBaseDto userBaseDto, Pageable pageable);
 }
