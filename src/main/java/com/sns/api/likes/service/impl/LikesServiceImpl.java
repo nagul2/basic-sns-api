@@ -74,24 +74,24 @@ public class LikesServiceImpl implements LikesService {
     private void validateCreateLike(Long id, LikeType likeType, Long userId) {
 
         Long writerId = switch (likeType) {
-            case POST -> postsRepository.findById(id).orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND))
+            case POST -> postsRepository.findById(id).orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND, "존재하지 않는 게시글 ID 입니다.: " + id))
                     .getCreatedBy().getId();
 
             case COMMENT -> commentsRepository.findById(id)
-                    .orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND)).getCreatedBy().getId();
+                    .orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND, "존재하지 않는 댓글 ID 입니다.: " + id)).getCreatedBy().getId();
         };
 
         if (Objects.equals(writerId, userId)) {
-            throw new CustomException(ResultCode.VALID_FAIL, "본인이 작성한 게시글에는 좋아요를 남길 수 없습니다.");
+            throw new CustomException(ResultCode.VALID_FAIL, "본인의 작성글에는 좋아요를 남길 수 없습니다.");
         }
     }
 
     private void findByIdOrElseThrow(Long id, LikeType likeType) {
 
         switch (likeType) {
-            case POST -> postsRepository.findById(id).orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
+            case POST -> postsRepository.findById(id).orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND, "존재하지 않는 게시글 ID 입니다.: " + id));
             case COMMENT ->
-                    commentsRepository.findById(id).orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
+                    commentsRepository.findById(id).orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND, "존재하지 않는 댓글 ID 입니다.: " + id));
         }
     }
 }
