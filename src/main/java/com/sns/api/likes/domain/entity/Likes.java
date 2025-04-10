@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +23,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "likes")
+@Table(name = "likes", uniqueConstraints = @UniqueConstraint(columnNames = {"like_type", "like_type_id", "created_by"}))
 @Getter
 @NoArgsConstructor
 public class Likes {
@@ -32,8 +33,10 @@ public class Likes {
     private Long id;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "like_type", nullable = false)
     private LikeType likeType;
 
+    @Column(name = "like_type_id")
     private Long likeTypeId;
 
     @CreatedBy
