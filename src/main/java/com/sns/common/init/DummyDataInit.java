@@ -3,6 +3,9 @@ package com.sns.common.init;
 import com.sns.api.auth.service.AuthService;
 import com.sns.api.comments.domain.entity.Comments;
 import com.sns.api.comments.repository.CommentsRepository;
+import com.sns.api.friends.domain.entity.Friends;
+import com.sns.api.friends.domain.entity.FriendsStatus;
+import com.sns.api.friends.repository.FriendsRepository;
 import com.sns.api.friends.service.FriendsService;
 import com.sns.api.posts.domain.entity.Posts;
 import com.sns.api.posts.repository.PostsRepository;
@@ -19,10 +22,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Random;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -32,11 +32,10 @@ public class DummyDataInit {
     private static final String[] EMAIL_DOMAINS = {"@google.com", "@naver.com", "@kakao.com"};
     private static final String[] USER_FIRST_NAMES = {"김", "박", "유", "안", "정", "전", "이"};
 
-    private final AuthService authService;
     private final UsersRepository usersRepository;
     private final PostsRepository postsRepository;
     private final CommentsRepository commentsRepository;
-    private final FriendsService friendsService;
+    private final FriendsRepository friendsRepository;
 
     Random random = new Random();
     Faker koFaker = new Faker((new Locale("ko")));
@@ -135,11 +134,47 @@ public class DummyDataInit {
         }
     }
 
-    // todo: 그다음 회원의 친구 상태(랜덤 회원이 0 ~ 여러 회원에게 친구 요청 전송 및 수락 진행)
+    // 4. 친구 요청 랜덤 생성
     @EventListener(ApplicationReadyEvent.class)
     @Order(4)
     public void initFriends() {
+        List<Friends> friends = new ArrayList<>();
+        List<Users> users = usersRepository.findAll();
+        Set<String> existingFriendPairs = new HashSet<>();
 
+        for (Users user : users) {
+            int randomFriendsCount = random.nextInt(5);
+            for (int i = 0; i < randomFriendsCount; i++) {
+                Users receiverUser = users.get(random.nextInt(users.size()));
+
+                if (user.equals(receiverUser)) {
+                    continue;
+                }
+
+                String key1 = user.getId() + ":" + receiverUser.getId();
+                String key2 = receiverUser.getId() + ":" + user.getId();
+
+                if (existingFriendPairs.contains(key1) || existingFriendPairs.contains(key2)) {
+                    continue;
+                }
+                existingFriendPairs.add(key1);
+
+                Friends friend = Friends.builder()
+                        .fromUser(user)
+                        .toUser(receiverUser)
+                        .status(i % 2 == 0 ? FriendsStatus.ACCEPT : FriendsStatus.PENDING)  // 짝수 -> 친구, 홀수 -> 요청만
+                        .build();
+
+                friends.add(friend);
+            }
+        }
+        List<Friends> savedFriends = friendsRepository.saveAll(friends);
+
+        log.info("저장 댓글 개수: {}", savedFriends.size());
+        for (Friends savedFriend : savedFriends) {
+            log.info("보낸 친구: {}", savedFriend.getFromUser().getUsername());
+            log.info("받은 친구: {}", savedFriend.getFromUser().getUsername());
+        }
     }
 
 
