@@ -17,6 +17,6 @@ public interface CommentsRepository extends JpaRepository<Comments, Long> {
      * @return 댓글 목록
      */
     @EntityGraph(attributePaths = "createdBy")
-    Page<Comments> findAllByPost(Posts post, Pageable pageable);
+    Page<Comments> findAllByPost_Id(Long postId, Pageable pageable);
 
 }
