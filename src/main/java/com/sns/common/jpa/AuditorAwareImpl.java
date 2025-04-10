@@ -24,13 +24,19 @@ public class AuditorAwareImpl implements AuditorAware<Users> {
 
     @Override
     public Optional<Users> getCurrentAuditor() {
-        UserBaseDto userDto = (UserBaseDto) httpSession.getAttribute(Const.LOGIN_USER);
-        if (userDto == null)
-            return null;
+        try {
+            UserBaseDto userDto = (UserBaseDto) httpSession.getAttribute(Const.LOGIN_USER);
+            if (userDto == null)
+                return Optional.empty();
 
-        Users user = usersRepository.findById(userDto.getUserId())
-                .orElseThrow(() -> new CustomException(ResultCode.AUTHENTICATION_FAILED));
+            Users user = usersRepository.findById(userDto.getUserId())
+                    .orElseThrow(() -> new CustomException(ResultCode.AUTHENTICATION_FAILED));
 
-        return Optional.ofNullable(user);
+            return Optional.ofNullable(user);
+
+        } catch (IllegalStateException e) {
+            return Optional.empty();
+
+        }
     }
 }
