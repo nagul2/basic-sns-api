@@ -35,4 +35,8 @@ public class Follows {
     @CreatedDate
     @Column(nullable = false)
     private LocalDateTime createdAt;
+
+    public Follows (Users following) {
+        this.following = following;
+    }
 }
