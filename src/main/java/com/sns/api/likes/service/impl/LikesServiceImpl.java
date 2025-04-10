@@ -50,8 +50,8 @@ public class LikesServiceImpl implements LikesService {
     @Override
     public void deleteLike(Long likeTypeId, LikeType likeType, UserBaseDto userBaseDto) {
 
-        // 해당 게시글이 있는지 조회
-        Posts posts = findByIdOrElseThrow(likeTypeId);
+        // 해당 게시글/댓글이 있는지 조회
+        findByIdOrElseThrow(likeTypeId, likeType);
 
         // 자신이 누른 좋아요를 조회 (하나의 게시글에는 하나의 결과만 나옴)
         Likes likes = likesRepository.findByLikeTypeAndLikeTypeIdAndCreatedById(likeType, likeTypeId,
@@ -64,18 +64,13 @@ public class LikesServiceImpl implements LikesService {
     @Override
     public LikeCountResponseDto countLike(Long likeTypeId, LikeType likeType) {
 
-        // 해당 게시글이 있는지 조회
-        Posts posts = findByIdOrElseThrow(likeTypeId);
+        // 해당 게시글/댓글이 있는지 조회
+        findByIdOrElseThrow(likeTypeId, likeType);
 
         // 해당 게시글의 좋아요 수를 계산
         Long likeCount = likesRepository.countByLikeTypeAndLikeTypeId(likeType, likeTypeId);
 
         return LikeCountResponseDto.fromEntity(likeTypeId, likeType, likeCount);
-    }
-
-    private Posts findByIdOrElseThrow(Long id) {
-
-        return postsRepository.findById(id).orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
     }
 
     private void validateCreateLike(Long id, LikeType likeType, Long userId) {
@@ -96,6 +91,15 @@ public class LikesServiceImpl implements LikesService {
                     throw new CustomException(ResultCode.VALID_FAIL, "본인이 작성한 댓글에는 좋아요를 남길 수 없습니다.");
                 }
             }
+        }
+    }
+
+    private void findByIdOrElseThrow(Long id, LikeType likeType) {
+
+        switch (likeType) {
+            case POST -> postsRepository.findById(id).orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
+            case COMMENT ->
+                    commentsRepository.findById(id).orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
         }
     }
 }

@@ -8,6 +8,7 @@ import com.sns.common.component.BaseResponse;
 import com.sns.common.component.Const;
 import com.sns.common.component.ResultCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,5 +28,13 @@ public class CommentLikesController {
 
         return BaseResponse.success(likesService.createLike(commentId, LikeType.COMMENT, userBaseDto),
                 ResultCode.CREATED);
+    }
+
+    @DeleteMapping
+    public BaseResponse<Void> unlikeComment(@PathVariable Long commentId,
+                                            @SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto) {
+
+        likesService.deleteLike(commentId, LikeType.COMMENT, userBaseDto);
+        return BaseResponse.success(null, ResultCode.NO_CONTENT);
     }
 }
