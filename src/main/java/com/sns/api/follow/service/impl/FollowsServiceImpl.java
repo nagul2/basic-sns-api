@@ -11,6 +11,8 @@ import com.sns.api.users.repository.UsersRepository;
 import com.sns.common.component.ResultCode;
 import com.sns.common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,11 +69,9 @@ public class FollowsServiceImpl implements FollowsService {
     }
 
     @Override
-    public List<FollowsResponseDto> getFollowers(UserBaseDto userBaseDto) {
-        return followsRepository.findAllByFollowingIdWithActiveMember(userBaseDto.getUserId())
-                .stream()
-                .map(FollowsResponseDto::fromEntity)
-                .toList();
+    public Page<FollowsResponseDto> getFollowers(UserBaseDto userBaseDto, Pageable pageable) {
+        return followsRepository.findAllByFollowingIdWithActiveMember(userBaseDto.getUserId(), pageable)
+                .map(FollowsResponseDto::fromEntity);
     }
 
     @Override

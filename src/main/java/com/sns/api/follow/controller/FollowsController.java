@@ -9,6 +9,9 @@ import com.sns.common.component.Const;
 import com.sns.common.component.ResultCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,8 +36,9 @@ public class FollowsController {
     }
 
     @GetMapping("/followers")
-    public BaseResponse<List<FollowsResponseDto>> getMyFollowers(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto) {
-        return BaseResponse.success(followsService.getFollowers(userBaseDto), ResultCode.OK);
+    public BaseResponse<Page<FollowsResponseDto>> getMyFollowers(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto,
+                                                                 @PageableDefault(size = 5) Pageable pageable) {
+        return BaseResponse.success(followsService.getFollowers(userBaseDto, pageable), ResultCode.OK);
     }
 
     @GetMapping("/followings")
