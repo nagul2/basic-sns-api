@@ -141,6 +141,6 @@ public class UsersServiceImpl implements UsersService {
      */
     private Users findByIdOrElseThrow(Long id) {
 
-        return usersRepository.findById(id).orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
+        return usersRepository.findById(id).orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND, "해당 회원이 존재하지 않습니다.: " + id));
     }
 }
