@@ -3,11 +3,9 @@ package com.sns.common.init;
 import com.sns.api.auth.service.AuthService;
 import com.sns.api.comments.domain.entity.Comments;
 import com.sns.api.comments.repository.CommentsRepository;
-import com.sns.api.comments.service.CommentsService;
 import com.sns.api.friends.service.FriendsService;
 import com.sns.api.posts.domain.entity.Posts;
 import com.sns.api.posts.repository.PostsRepository;
-import com.sns.api.posts.service.PostsService;
 import com.sns.api.users.domain.entity.MBTI;
 import com.sns.api.users.domain.entity.Users;
 import com.sns.api.users.repository.UsersRepository;
@@ -86,13 +84,12 @@ public class DummyDataInit {
         List<Posts> posts = new ArrayList<>();
         List<Users> users = usersRepository.findAll();
 
-
         for (int i = 0; i < 103; i++) {
-            int randomUserId = random.nextInt(25);
-            Users user = users.get(randomUserId);
-            Posts post = Posts.of("dummy 데이터 입니다" + i);
-            post.setOnlyDummyCreatedBy(user);
-            post.setOnlyDummyModifiedBy(user);
+            int randomUserId = random.nextInt(users.size());
+            Users randomUser = users.get(randomUserId);
+            Posts post = Posts.of("dummy 데이터 입니다" + (i + 1));
+            post.setOnlyDummyCreatedBy(randomUser);
+            post.setOnlyDummyModifiedBy(randomUser);
 
             posts.add(post);
         }
@@ -102,7 +99,7 @@ public class DummyDataInit {
         log.info("저장 게시글 개수: {}", savedPosts.size());
         for (Posts savedPost : savedPosts) {
             log.info("저장된 게시글 내용: {}", savedPost.getContent());
-            log.info("게시글 유저 이름: {}", savedPost.getCreatedBy());
+            log.info("게시글 유저 이름: {}", savedPost.getCreatedBy().getUsername());
         }
     }
 
@@ -114,14 +111,13 @@ public class DummyDataInit {
         List<Users> users = usersRepository.findAll();
         List<Posts> posts = postsRepository.findAll();
 
-        for (int i = 0; i < 50; i++) {
-            for (int j = 0; j < 30; j++) {
-                int randomPostId = random.nextInt(posts.size());
-                int randomUserId = random.nextInt(users.size());
-                Posts randomPost = posts.get(randomPostId);
-                Users randomUser = users.get(randomUserId);
+        for (Posts post : posts) {
+            int randomCommentQuantity = random.nextInt(31);
 
-                Comments comment = Comments.of(randomPost, randomPost.getId() + "의 댓글 " + j + 1);
+            for (int i = 0; i < randomCommentQuantity; i++) {
+                Users randomUser = users.get(random.nextInt(users.size()));
+                Comments comment = Comments.of(post, post.getId() + "번 게시글의 댓글 " + (i + 1));
+
                 comment.setOnlyDummyCreatedBy(randomUser);
                 comment.setOnlyDummyModifiedBy(randomUser);
 
@@ -135,7 +131,7 @@ public class DummyDataInit {
         for (Comments savedComment : savedComments) {
             log.info("게시글 번호: {}", savedComment.getPost().getId());
             log.info("저장된 댓글 내용: {}", savedComment.getContent());
-            log.info("댓글 유저 이름: {}", savedComment.getCreatedBy());
+            log.info("댓글 유저 이름: {}", savedComment.getCreatedBy().getUsername());
         }
     }
 
