@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CommentsRepository extends JpaRepository<Comments, Long> {
+public interface CommentsRepository extends JpaRepository<Comments, Long>, CommentsQueryRepository {
 
     /**
      * 특정 게시물에 속하는 댓글 전체 조회
