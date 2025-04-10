@@ -6,6 +6,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sns.api.comments.domain.entity.QComments;
 import com.sns.api.common.domain.dto.QUserBaseDto;
@@ -17,8 +18,8 @@ import com.sns.api.posts.domain.entity.QPosts;
 import com.sns.api.users.domain.entity.QUsers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -114,13 +115,14 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                 .fetch();
 
         // 카운트 쿼리
-        Long total = queryFactory
+        JPAQuery<Long> countQuery = queryFactory
                 .select(posts.count())
                 .from(posts)
-                .where(builder)
-                .fetchOne();
+                .where(builder);
 
-        return new PageImpl<>(results, pageable, total != null ? total : 0);
+        // 페이징 최적화
+        // 필요할 때만 count 쿼리 실행함 (ex. 마지막 페이지면 생략 가능)
+        return PageableExecutionUtils.getPage(results, pageable, countQuery::fetchOne);
     }
 
     // 댓글 개수 서브 쿼리
