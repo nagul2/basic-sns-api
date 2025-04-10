@@ -53,10 +53,13 @@ public class FollowsServiceImpl implements FollowsService {
 
     @Override
     public void unFollow(Long followId, UserBaseDto userBaseDto) {
+        Long userId = userBaseDto.getUserId();
+
         Follows follows = followsRepository.findById(followId)
                 .orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND, "해당 followId의 팔로우를 찾을 수 없습니다."));
 
-        if (!follows.getFollower().getId().equals(userBaseDto.getUserId())) {
+        // 팔로워랑 팔로잉한 사람이 아닐 경우 권한 없음
+        if (!follows.getFollower().getId().equals(userId) && !follows.getFollowing().getId().equals(userId)) {
             throw new CustomException(ResultCode.ACCESS_DENIED, "팔로우 취소 권한이 없습니다.");
         }
 
