@@ -1,6 +1,7 @@
 package com.sns.common.init;
 
 import com.sns.api.auth.service.AuthService;
+import com.sns.api.comments.domain.entity.Comments;
 import com.sns.api.comments.repository.CommentsRepository;
 import com.sns.api.comments.service.CommentsService;
 import com.sns.api.friends.service.FriendsService;
@@ -105,12 +106,37 @@ public class DummyDataInit {
         }
     }
 
-
-    // todo: 그다음 게시글의 댓글 작성, 게시글마다 0 ~ 30개 랜덤 회원이 작성
+    // 3: 특정 게시글의 댓글 작성, 게시글마다 0 ~ 30개, 랜덤 회원이 작성
     @EventListener(ApplicationReadyEvent.class)
     @Order(3)
     public void initComments() {
+        List<Comments> comments = new ArrayList<>();
+        List<Users> users = usersRepository.findAll();
+        List<Posts> posts = postsRepository.findAll();
 
+        for (int i = 0; i < 50; i++) {
+            for (int j = 0; j < 30; j++) {
+                int randomPostId = random.nextInt(posts.size());
+                int randomUserId = random.nextInt(users.size());
+                Posts randomPost = posts.get(randomPostId);
+                Users randomUser = users.get(randomUserId);
+
+                Comments comment = Comments.of(randomPost, randomPost.getId() + "의 댓글 " + j + 1);
+                comment.setOnlyDummyCreatedBy(randomUser);
+                comment.setOnlyDummyModifiedBy(randomUser);
+
+                comments.add(comment);
+            }
+        }
+
+        List<Comments> savedComments = commentsRepository.saveAll(comments);
+
+        log.info("저장 댓글 개수: {}", savedComments.size());
+        for (Comments savedComment : savedComments) {
+            log.info("게시글 번호: {}", savedComment.getPost().getId());
+            log.info("저장된 댓글 내용: {}", savedComment.getContent());
+            log.info("댓글 유저 이름: {}", savedComment.getCreatedBy());
+        }
     }
 
     // todo: 그다음 회원의 친구 상태(랜덤 회원이 0 ~ 여러 회원에게 친구 요청 전송 및 수락 진행)
