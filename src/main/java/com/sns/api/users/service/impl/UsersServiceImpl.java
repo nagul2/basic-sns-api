@@ -103,12 +103,8 @@ public class UsersServiceImpl implements UsersService {
                 .map(f -> f.getFromUser().getId().equals(userId) ? f.getToUser().getId() : f.getFromUser().getId())
                 .collect(Collectors.toSet());
 
-        Page<Users> usersPage = usersRepository.searchByUsernameAndEmail(pageable, username, email);
-
-        List<UserReadResponseDto> sortedList = usersPage.getContent().stream().map(UserReadResponseDto::fromEntity)
-                .sorted(Comparator.comparing((UserReadResponseDto u) -> !friendsIds.contains(u.getUserId()))).toList();
-
-        return new PageImpl<>(sortedList, pageable, usersPage.getTotalElements());
+        return usersRepository.searchByUsernameAndEmail(pageable, username, email, friendsIds)
+                .map(UserReadResponseDto::fromEntity);
     }
 
     private Users findByIdOrElseThrow(Long id) {
