@@ -151,7 +151,7 @@ public class DummyDataInit {
         Set<String> existingFriendPairs = new HashSet<>();
 
         for (Users user : users) {
-            int randomFriendsCount = random.nextInt(5);
+            int randomFriendsCount = random.nextInt(10);
             for (int i = 0; i < randomFriendsCount; i++) {
                 Users receiverUser = users.get(random.nextInt(users.size()));
 
