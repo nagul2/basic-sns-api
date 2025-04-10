@@ -43,9 +43,10 @@ public class PostsController {
 
     @GetMapping
     public BaseResponse<Page<PostResponseDto>> getPosts(@ModelAttribute @Valid PostSearchRequestDto searchRequestDto,
-                                                        @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+                                                        @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+                                                        @SessionAttribute(name = Const.LOGIN_USER) UserBaseDto userBaseDto) {
 
-        Page<PostResponseDto> posts = postsService.getPosts(searchRequestDto, pageable);
+        Page<PostResponseDto> posts = postsService.getPosts(searchRequestDto, pageable, userBaseDto);
 
         return BaseResponse.success(posts, ResultCode.OK);
     }

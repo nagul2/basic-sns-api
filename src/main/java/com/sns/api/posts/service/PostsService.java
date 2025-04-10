@@ -15,7 +15,7 @@ public interface PostsService {
 
     PostWithCommentsResponseDto getPostById(Long postId);
 
-    Page<PostResponseDto> getPosts(PostSearchRequestDto searchRequestDto, Pageable pageable);
+    Page<PostResponseDto> getPosts(PostSearchRequestDto searchRequestDto, Pageable pageable, UserBaseDto userBaseDto);
 
     PostResponseDto updatePost(Long postId, PostUpdateRequestDto updateRequestDto, UserBaseDto userBaseDto);
 
