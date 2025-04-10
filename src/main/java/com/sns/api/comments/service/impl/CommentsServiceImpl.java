@@ -56,13 +56,11 @@ public class CommentsServiceImpl implements CommentsService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<CommentResponseDto> getCommentsByPost(Pageable pageable, Long postId) {
+    public Page<CommentResponseDto> getCommentsByPost(Long postId, UserBaseDto userBaseDto, Pageable pageable) {
 
         Posts post = getPostByIdOrElseThrow(postId);
 
-        Page<Comments> comments = commentsRepository.findAllByPost_Id(post.getId(), pageable);
-
-        return comments.map(CommentResponseDto::fromEntity);
+        return commentsRepository.findAllWithQuery(post.getId(), userBaseDto.getUserId(), pageable);
     }
 
     /**
