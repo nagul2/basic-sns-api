@@ -70,4 +70,12 @@ public class FollowsServiceImpl implements FollowsService {
                 .map(FollowsResponseDto::fromEntity)
                 .toList();
     }
+
+    @Override
+    public List<FollowsResponseDto> getFollowings(UserBaseDto userBaseDto) {
+        return followsRepository.findAllByFollowerIdWithActiveMember(userBaseDto.getUserId())
+                .stream()
+                .map(FollowsResponseDto::fromEntity)
+                .toList();
+    }
 }

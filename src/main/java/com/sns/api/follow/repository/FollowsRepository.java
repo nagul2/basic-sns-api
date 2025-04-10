@@ -13,4 +13,9 @@ public interface FollowsRepository extends JpaRepository<Follows, Long> {
 
     @Query("select f from Follows f join f.follower m where f.following.id = :id and m.isDeleted = false")
     List<Follows> findAllByFollowingIdWithActiveMember(@Param("id") Long followingId);
+
+    @Query("select f from Follows f join f.following m where f.follower.id = :id and m.isDeleted = false")
+    List<Follows> findAllByFollowerIdWithActiveMember(@Param("id") Long followerId);
+
+
 }

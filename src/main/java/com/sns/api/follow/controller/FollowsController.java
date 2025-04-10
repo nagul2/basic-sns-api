@@ -36,4 +36,9 @@ public class FollowsController {
     public BaseResponse<List<FollowsResponseDto>> getMyFollowers(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto) {
         return BaseResponse.success(followsService.getFollowers(userBaseDto), ResultCode.OK);
     }
+
+    @GetMapping("/followings")
+    public BaseResponse<List<FollowsResponseDto>> getMyFollowings(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto) {
+        return BaseResponse.success(followsService.getFollowings(userBaseDto), ResultCode.OK);
+    }
 }

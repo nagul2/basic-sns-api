@@ -2,7 +2,6 @@ package com.sns.api.follow.domain.dto.response;
 
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.follow.domain.entity.Follows;
-import com.sns.api.posts.domain.dto.response.PostResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
