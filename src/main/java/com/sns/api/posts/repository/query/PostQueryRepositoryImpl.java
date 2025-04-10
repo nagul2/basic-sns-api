@@ -39,6 +39,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
 
     private final JPAQueryFactory queryFactory;
 
+    // Q 타입 필드 선언
     private final QPosts posts = QPosts.posts;
     private final QUsers users = QUsers.users;
     private final QComments comments = QComments.comments;
@@ -97,6 +98,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                                                   Pageable pageable) {
 
         // 동적 where 조건 빌더
+        // 추후 이를 활용해 게시물 본문 등을 키워드로 검색할 수도 있다.
         BooleanBuilder builder = new BooleanBuilder();
 
         // 생성일 기준 기간별 검색
@@ -122,13 +124,13 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                 ))
                 .from(posts)
                 .join(posts.createdBy, users)
-                .where(builder)
-                .orderBy(getOrderSpecifiers(pageable.getSort(), userId))
+                .where(builder)     // 동적 where 조건 적용
+                .orderBy(getOrderSpecifiers(pageable.getSort(), userId))    // 정렬 조건 적용
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        // 카운트 쿼리
+        // count 쿼리 작성 (페이징 total count 용도)
         JPAQuery<Long> countQuery = queryFactory
                 .select(posts.count())
                 .from(posts)
@@ -140,12 +142,14 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
     }
 
 
-    // 정렬 기준 동적 생성
+    // 정렬 조건 동적 생성 (친구 게시물 항상 우선 + 정렬 조건별 분기)
     private OrderSpecifier<?>[] getOrderSpecifiers(Sort sort, Long userId) {
 
         List<OrderSpecifier<?>> orders = new ArrayList<>();
 
+        // 1. 친구 우선 정렬 (CASE WHEN THEN 0 ELSE 1 ASC)
         orders.add(getFriendPriority(userId).asc());
+        // 2. 친구라면 createdAt 기준 최신순 정렬
         orders.add(
                 new OrderSpecifier<>(
                         Order.DESC,
@@ -155,7 +159,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                 )
         );
 
-        // 사용자가 요청한 정렬
+        // 3. 사용자가 요청한 정렬 조건 적용
         for (Sort.Order order : sort) {
             Order direction = order.isAscending() ? Order.ASC : Order.DESC;     // 정렬 방향
 
@@ -164,7 +168,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                 case "like" -> orders.add(new OrderSpecifier<>(direction, getLikesCountSubQuery()));        // 좋아요 기준 정렬
                 case "createdAt" -> orders.add(new OrderSpecifier<>(direction, posts.createdAt));           // 생성일 기준 정렬
                 case "modifiedAt" -> orders.add(new OrderSpecifier<>(direction, posts.modifiedAt));         // 수정일 기준 정렬
-                default -> orders.add(posts.createdAt.desc());                                              // 기본 (생성일 기준 내림차순)
+                default -> orders.add(posts.createdAt.desc());                                              // 기본값: 생성일 기준 내림차순
             }
         }
 
@@ -173,6 +177,8 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
         return orders.toArray(new OrderSpecifier[0]);
     }
 
+    // 친구 여부를 기반으로 CASE WHEN 우선순위 표현식 설정
+    // 이 값을 order by 에서 사용하면 친구가 게시물이 항상 상단에 보임
     private NumberExpression<Integer> getFriendPriority(Long userId) {
 
         return new CaseBuilder()
@@ -180,6 +186,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                 .otherwise(1);
     }
 
+    // 친구 여부 서브쿼리 (로그인한 회원과 게시물 작성자가 친구(ACCEPT)인지 확인)
     private BooleanExpression getFriendCondition(Long userId) {
 
         return JPAExpressions
@@ -220,12 +227,14 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                 .exists();
     }
 
+    // 좋아요 수 계산 조건
     private BooleanExpression likeCountCondition(QLikes likes, QPosts posts) {
 
         return likes.likeType.eq(LikeType.POST)
                 .and(likes.likeTypeId.eq(posts.id));
     }
 
+    // 로그인한 유저가 해당 게시글에 좋아요 눌렀는지 여부
     private BooleanExpression likedByMeCondition(QLikes likes, Long userId) {
 
         return likes.likeType.eq(LikeType.POST)
