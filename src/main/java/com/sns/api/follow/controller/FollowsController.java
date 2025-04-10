@@ -11,6 +11,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/follows")
@@ -28,5 +30,10 @@ public class FollowsController {
     public BaseResponse<Void> unFollow(@PathVariable Long followId, @SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto) {
         followsService.unFollow(followId, userBaseDto);
         return BaseResponse.success(null, ResultCode.NO_CONTENT);
+    }
+
+    @GetMapping("/followers")
+    public BaseResponse<List<FollowsResponseDto>> getMyFollowers(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto) {
+        return BaseResponse.success(followsService.getFollowers(userBaseDto), ResultCode.OK);
     }
 }

@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -60,6 +61,13 @@ public class FollowsServiceImpl implements FollowsService {
         }
 
         followsRepository.delete(follows);
+    }
 
+    @Override
+    public List<FollowsResponseDto> getFollowers(UserBaseDto userBaseDto) {
+        return followsRepository.findAllByFollowingIdWithActiveMember(userBaseDto.getUserId())
+                .stream()
+                .map(FollowsResponseDto::fromEntity)
+                .toList();
     }
 }
