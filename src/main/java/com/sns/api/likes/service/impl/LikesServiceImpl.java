@@ -1,5 +1,7 @@
 package com.sns.api.likes.service.impl;
 
+import com.sns.api.comments.domain.entity.Comments;
+import com.sns.api.comments.repository.CommentsRepository;
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.likes.domain.dto.LikeCountResponseDto;
 import com.sns.api.likes.domain.dto.LikeResponseDto;
@@ -23,15 +25,13 @@ public class LikesServiceImpl implements LikesService {
 
     private final PostsRepository postsRepository;
 
+    private final CommentsRepository commentsRepository;
+
     @Override
     public LikeResponseDto createLike(Long likeTypeId, LikeType likeType, UserBaseDto userBaseDto) {
 
-        // 해당 게시글이 있는지 조회
-        Posts posts = findByIdOrElseThrow(likeTypeId);
-
-        if (Objects.equals(posts.getCreatedBy().getId(), userBaseDto.getUserId())) {
-            throw new CustomException(ResultCode.VALID_FAIL, "본인이 작성한 글에는 좋아요를 남길 수 없습니다.");
-        }
+        // 본인이 작성한 댓글/게시글인지 확인
+        validateCreateLike(likeTypeId, likeType, userBaseDto.getUserId());
 
         // 이미 좋아요를 눌렀는지 조회
         boolean isExist = likesRepository.existsByLikeTypeAndLikeTypeIdAndCreatedById(likeType, likeTypeId,
@@ -70,11 +70,32 @@ public class LikesServiceImpl implements LikesService {
         // 해당 게시글의 좋아요 수를 계산
         Long likeCount = likesRepository.countByLikeTypeAndLikeTypeId(likeType, likeTypeId);
 
-        return LikeCountResponseDto.fromEntity(likeTypeId, likeCount);
+        return LikeCountResponseDto.fromEntity(likeTypeId, likeType, likeCount);
     }
 
     private Posts findByIdOrElseThrow(Long id) {
 
         return postsRepository.findById(id).orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
+    }
+
+    private void validateCreateLike(Long id, LikeType likeType, Long userId) {
+
+        switch (likeType) {
+            case POST -> {
+                Posts posts = postsRepository.findById(id).orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
+
+                if (Objects.equals(posts.getCreatedBy().getId(), userId)) {
+                    throw new CustomException(ResultCode.VALID_FAIL, "본인이 작성한 게시글에는 좋아요를 남길 수 없습니다.");
+                }
+            }
+            case COMMENT -> {
+                Comments comments = commentsRepository.findById(id)
+                        .orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND));
+
+                if (Objects.equals(comments.getCreatedBy().getId(), userId)) {
+                    throw new CustomException(ResultCode.VALID_FAIL, "본인이 작성한 댓글에는 좋아요를 남길 수 없습니다.");
+                }
+            }
+        }
     }
 }
