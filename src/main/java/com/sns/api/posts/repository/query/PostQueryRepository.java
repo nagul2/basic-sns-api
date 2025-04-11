@@ -5,7 +5,6 @@ import com.sns.api.posts.domain.dto.response.PostResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface PostQueryRepository {

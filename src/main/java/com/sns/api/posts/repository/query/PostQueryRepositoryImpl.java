@@ -125,7 +125,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
             countQuery
                     .leftJoin(friends)
                     .on(getFriendCondition(userId))
-                    .where(getWhereCondition(searchCondition, userId));
+                    .where(getWhereCondition(searchCondition));
         } else if (searchCondition.getIsOnlyFriends() == Boolean.TRUE) {    // 친구 게시물만 조회하려는 경우
             query
                     .innerJoin(friends)
@@ -148,19 +148,19 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
 
         // 쿼리 마무리
         query
-                .where(getWhereCondition(searchCondition, userId))     // 동적 where 조건 적용
+                .where(getWhereCondition(searchCondition))     // 동적 where 조건 적용
                 .orderBy(getOrderSpecifiers(searchCondition, pageable.getSort()))    // 정렬 조건 적용
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
         countQuery
-                .where(getWhereCondition(searchCondition, userId));
+                .where(getWhereCondition(searchCondition));
 
         // 페이징 최적화
         // 필요할 때만 count 쿼리 실행함 (ex. 마지막 페이지면 생략 가능)
         return PageableExecutionUtils.getPage(query.fetch(), pageable, countQuery::fetchOne);
     }
 
-    private BooleanBuilder getWhereCondition(PostSearchCondition searchCondition, Long userId) {
+    private BooleanBuilder getWhereCondition(PostSearchCondition searchCondition) {
 
         // 동적 where 조건 빌더
         // 추후 이를 활용해 게시물 본문 등을 키워드로 검색할 수도 있다.
