@@ -16,4 +16,5 @@ public interface PostQueryRepository {
                                            LocalDateTime endDate,
                                            Pageable pageable);
 
+    Page<PostResponseDto> findMyLikedPosts(Long userId, Pageable pageable);
 }

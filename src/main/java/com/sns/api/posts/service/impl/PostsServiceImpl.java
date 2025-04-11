@@ -1,6 +1,6 @@
 package com.sns.api.posts.service.impl;
 
-import com.sns.api.comments.domain.entity.Comments;
+import com.sns.api.comments.domain.dto.response.CommentResponseDto;
 import com.sns.api.comments.repository.CommentsRepository;
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.posts.domain.dto.request.PostCreateRequestDto;
@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,7 +51,7 @@ public class PostsServiceImpl implements PostsService {
      * 게시물 단건 조회
      * - 게시물에 속한 댓글들도 함께 조회한다.
      * - 댓글은 기본적으로 0 페이지의 데이터를 조회하며, 만약 추가적인 데이터가 필요하다면 GET `/api/posts/{postId}/comments` API 사용
-     * @see com.sns.api.comments.controller.CommentsController#getComments(Long, Pageable)
+     * @see com.sns.api.comments.controller.CommentsController#getComments(Long, Pageable, UserBaseDto) 
      *
      * @param postId        조회할 게시물 ID
      * @param userBaseDto   로그인한 회원 정보
@@ -67,12 +66,13 @@ public class PostsServiceImpl implements PostsService {
                 .orElseThrow(() -> new CustomException(ResultCode.NOT_FOUND, "존재하지 않는 게시글 ID 입니다.: " + postId));
 
         // 댓글 조회
-        Page<Comments> comments = commentsRepository.findAllByPost_Id(
+        Page<CommentResponseDto> commentResponseDtos = commentsRepository.findAllWithQuery(
                 postId,
-                PageRequest.of(0, 10, Sort.by("createdBy").descending())
+                userBaseDto.getUserId(),
+                PageRequest.of(0, 10)
         );
 
-        return PostWithCommentsResponseDto.of(postResponseDto, comments);
+        return PostWithCommentsResponseDto.of(postResponseDto, commentResponseDtos);
     }
 
     /**
@@ -128,6 +128,12 @@ public class PostsServiceImpl implements PostsService {
         postsRepository.delete(post);
     }
 
+    @Override
+    public Page<PostResponseDto> getMyLikedPosts(UserBaseDto userBaseDto, Pageable pageable) {
+
+        return postsRepository.findMyLikedPosts(userBaseDto.getUserId(), pageable);
+    }
+    
 
     private Users getUserByIdOrElseThrow(Long userId) {
 
