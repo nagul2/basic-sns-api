@@ -1,5 +1,6 @@
-package com.sns.api.users.domain.dto;
+package com.sns.api.users.domain.dto.response;
 
+import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.users.domain.entity.Users;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,13 +9,9 @@ import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
-public class UserReadResponseDto {
-
-    private Long userId;
+public class UserReadResponseDto extends UserBaseDto {
 
     private String email;
-
-    private String username;
 
     private LocalDate birth;
 

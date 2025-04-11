@@ -1,7 +1,6 @@
 package com.sns.common.annotation;
 
 import com.sns.common.validator.MbtiConstraintValidator;
-import com.sns.common.validator.PasswordConstraintValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 

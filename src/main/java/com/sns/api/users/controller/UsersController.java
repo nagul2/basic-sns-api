@@ -2,11 +2,11 @@ package com.sns.api.users.controller;
 
 import com.sns.api.common.domain.dto.PageResponseDto;
 import com.sns.api.common.domain.dto.UserBaseDto;
-import com.sns.api.users.domain.dto.UserReadResponseDto;
-import com.sns.api.users.domain.dto.UserUpdateRequestDto;
-import com.sns.api.users.domain.dto.PasswordUpdateDto;
-import com.sns.api.users.domain.dto.UserDeleteRequestDto;
-import com.sns.api.users.domain.dto.UsersResponseDto;
+import com.sns.api.users.domain.dto.response.UserReadResponseDto;
+import com.sns.api.users.domain.dto.request.UserUpdateRequestDto;
+import com.sns.api.users.domain.dto.request.PasswordUpdateDto;
+import com.sns.api.users.domain.dto.request.UserDeleteRequestDto;
+import com.sns.api.users.domain.dto.response.UsersResponseDto;
 import com.sns.api.users.service.UsersService;
 import com.sns.common.component.BaseResponse;
 import com.sns.common.component.Const;
