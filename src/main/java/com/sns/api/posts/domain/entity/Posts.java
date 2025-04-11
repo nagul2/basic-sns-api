@@ -9,7 +9,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 @Entity
-@Table(name = "posts")
+@Table(name = "posts", indexes = @Index(name = "idx_created_at", columnList = "created_at"))
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
