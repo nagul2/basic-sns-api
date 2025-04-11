@@ -42,10 +42,6 @@ public class AuthServiceImpl implements AuthService {
         // User 저장
         Users saveUser = usersRepository.save(user);
 
-        if (saveUser.getId() == null) {
-            throw new CustomException(ResultCode.DB_FAIL, "회원 가입에 실패했습니다.");
-        }
-
         return UsersResponseDto.fromEntity(saveUser);
     }
 

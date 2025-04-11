@@ -1,7 +1,6 @@
 package com.sns.common.annotation;
 
 import com.sns.common.validator.DateConstraintValidator;
-import com.sns.common.validator.PasswordConstraintValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
