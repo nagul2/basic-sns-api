@@ -36,7 +36,7 @@ public class Likes {
     @Column(name = "like_type", nullable = false)
     private LikeType likeType;
 
-    @Column(name = "like_type_id")
+    @Column(name = "like_type_id", nullable = false)
     private Long likeTypeId;
 
     @CreatedBy

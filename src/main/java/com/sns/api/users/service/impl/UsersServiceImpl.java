@@ -1,11 +1,11 @@
 package com.sns.api.users.service.impl;
 
 import com.sns.api.friends.repository.FriendsRepository;
-import com.sns.api.users.domain.dto.UserReadResponseDto;
-import com.sns.api.users.domain.dto.UserUpdateRequestDto;
-import com.sns.api.users.domain.dto.PasswordUpdateDto;
-import com.sns.api.users.domain.dto.UserDeleteRequestDto;
-import com.sns.api.users.domain.dto.UsersResponseDto;
+import com.sns.api.users.domain.dto.response.UserReadResponseDto;
+import com.sns.api.users.domain.dto.request.UserUpdateRequestDto;
+import com.sns.api.users.domain.dto.request.PasswordUpdateDto;
+import com.sns.api.users.domain.dto.request.UserDeleteRequestDto;
+import com.sns.api.users.domain.dto.response.UsersResponseDto;
 import com.sns.api.users.domain.entity.Users;
 
 import com.sns.api.users.repository.UsersRepository;
@@ -13,7 +13,6 @@ import com.sns.api.users.service.UsersService;
 import com.sns.common.component.ResultCode;
 import com.sns.common.config.PasswordEncoder;
 import com.sns.common.exception.CustomException;
-import jakarta.transaction.Transactional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +39,7 @@ public class UsersServiceImpl implements UsersService {
      * @return 내 정보를 담은 dto
      */
     @Override
+    @Transactional(readOnly = true)
     public UsersResponseDto getMyInfo(Long id) {
 
         Users user = findByIdOrElseThrow(id);
@@ -65,6 +66,7 @@ public class UsersServiceImpl implements UsersService {
         return UsersResponseDto.fromEntity(user);
     }
 
+    @Transactional
     public void deleteMe(Long id, UserDeleteRequestDto requestDto) {
         Users user = findByIdOrElseThrow(id);
 
@@ -105,6 +107,7 @@ public class UsersServiceImpl implements UsersService {
      * @return 조회된 회원 정보를 담은 dto
      */
     @Override
+    @Transactional(readOnly = true)
     public UserReadResponseDto findById(Long id) {
 
         Users user = findByIdOrElseThrow(id);
@@ -122,6 +125,7 @@ public class UsersServiceImpl implements UsersService {
      * @return 검색된 회원 정보를 담은 dto page
      */
     @Override
+    @Transactional(readOnly = true)
     public Page<UserReadResponseDto> searchUsers(Pageable pageable, String username, String email, Long userId) {
 
         // 로그인한 유저의 친구 id 목록을 조회

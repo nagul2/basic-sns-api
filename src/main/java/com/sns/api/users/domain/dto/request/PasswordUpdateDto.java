@@ -1,4 +1,4 @@
-package com.sns.api.users.domain.dto;
+package com.sns.api.users.domain.dto.request;
 
 import com.sns.common.annotation.PasswordValid;
 import jakarta.validation.constraints.NotBlank;

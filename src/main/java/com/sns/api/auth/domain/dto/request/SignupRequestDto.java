@@ -1,14 +1,12 @@
-package com.sns.api.auth.domain.dto;
+package com.sns.api.auth.domain.dto.request;
 
 import com.sns.common.annotation.DateValid;
 import com.sns.common.annotation.MbtiValid;
 import com.sns.common.annotation.PasswordValid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 public class SignupRequestDto {
