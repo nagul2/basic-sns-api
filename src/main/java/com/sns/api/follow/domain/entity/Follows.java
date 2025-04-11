@@ -39,4 +39,10 @@ public class Follows {
     public Follows (Users following) {
         this.following = following;
     }
+
+    // Dummy 데이터용 setter
+    public void setOnlyDummyCreatedBy(Users user) {
+        this.follower = user;
+    }
+
 }

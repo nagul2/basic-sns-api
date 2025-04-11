@@ -24,4 +24,13 @@ abstract public class BaseUserEntity extends BaseTimeEntity{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "modified_by")
     private Users modifiedBy;
+
+    // Dummy 데이터용 setter
+    public void setOnlyDummyCreatedBy(Users user) {
+        this.createdBy = user;
+    }
+
+    public void setOnlyDummyModifiedBy(Users user) {
+        this.modifiedBy = user;
+    }
 }
