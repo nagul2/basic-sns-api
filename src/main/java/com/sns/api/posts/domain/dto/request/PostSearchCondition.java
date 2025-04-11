@@ -10,7 +10,9 @@ import java.time.format.DateTimeParseException;
 
 @Getter
 @AllArgsConstructor
-public class PostSearchRequestDto {
+public class PostSearchCondition {
+
+    private final Boolean isOnlyFriends;
 
     @DateValid
     private String startDate;

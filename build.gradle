@@ -43,6 +43,9 @@ dependencies {
 
 	// DataFaker: 더미데이터 삽입시 랜덤한 데이터를 뽑아내기 위한 라이브러리
 	implementation 'net.datafaker:datafaker:2.4.2'
+
+	// 쿼리 로깅 라이브러리
+	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
 }
 
 tasks.named('test') {

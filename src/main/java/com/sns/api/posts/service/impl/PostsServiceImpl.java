@@ -4,7 +4,7 @@ import com.sns.api.comments.domain.dto.response.CommentResponseDto;
 import com.sns.api.comments.repository.CommentsRepository;
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.posts.domain.dto.request.PostCreateRequestDto;
-import com.sns.api.posts.domain.dto.request.PostSearchRequestDto;
+import com.sns.api.posts.domain.dto.request.PostSearchCondition;
 import com.sns.api.posts.domain.dto.request.PostUpdateRequestDto;
 import com.sns.api.posts.domain.dto.response.PostResponseDto;
 import com.sns.api.posts.domain.dto.response.PostWithCommentsResponseDto;
@@ -22,7 +22,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Service
@@ -80,7 +79,7 @@ public class PostsServiceImpl implements PostsService {
      * - 검색 데이터를 활용하여 게시물 조회
      * - 페이징 정보에 포함되어 있는 정렬 기준으로 데이터 조회 (기본은 생성일자 기준 내림차순)
      * 
-     * @param searchRequestDto  검색 데이터
+     * @param searchCondition   검색 데이터
      * @param pageable          페이징 정보
      * @param userBaseDto       로그인한 회원 정보
      *
@@ -88,18 +87,9 @@ public class PostsServiceImpl implements PostsService {
      */
     @Transactional(readOnly = true)
     @Override
-    public Page<PostResponseDto> getPosts(PostSearchRequestDto searchRequestDto, Pageable pageable, UserBaseDto userBaseDto) {
+    public Page<PostResponseDto> getPosts(PostSearchCondition searchCondition, Pageable pageable, UserBaseDto userBaseDto) {
 
-        LocalDateTime startDate = null;
-        LocalDateTime endDate = null;
-
-        // startDate, endDate 모두 null 값이 아니고, startDate <= endDate 이면 값 할당
-        if (searchRequestDto.hasValidValue()) {
-            startDate = searchRequestDto.getStartDate();
-            endDate = searchRequestDto.getEndDate();
-        }
-
-        return postsRepository.findAllWithQuery(userBaseDto.getUserId(), startDate, endDate, pageable);
+        return postsRepository.findAllWithQuery(userBaseDto.getUserId(), searchCondition, pageable);
     }
 
     @Transactional
