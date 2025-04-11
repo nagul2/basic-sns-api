@@ -5,8 +5,6 @@ import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.core.types.dsl.DateTimeExpression;
-import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -124,6 +122,9 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                 ))
                 .from(posts)
                 .join(posts.createdBy, users)
+                .leftJoin(friends)
+                    .on(friends.status.eq(FriendsStatus.ACCEPT)
+                            .and(getFriendCondition(userId)))
                 .where(builder)     // 동적 where 조건 적용
                 .orderBy(getOrderSpecifiers(pageable.getSort(), userId))    // 정렬 조건 적용
                 .offset(pageable.getOffset())
@@ -147,19 +148,15 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
 
         List<OrderSpecifier<?>> orders = new ArrayList<>();
 
-        // 1. 친구 우선 정렬 (CASE WHEN THEN 0 ELSE 1 ASC)
-        orders.add(getFriendPriority(userId).asc());
-        // 2. 친구라면 createdAt 기준 최신순 정렬
+        // 1. 친구 게시물 우선 정렬
         orders.add(
-                new OrderSpecifier<>(
-                        Order.DESC,
-                        new CaseBuilder()
-                                .when(getFriendCondition(userId)).then(posts.createdAt)
-                                .otherwise((DateTimeExpression<LocalDateTime>) null)
-                )
+                new CaseBuilder()
+                        .when(friends.id.isNotNull()).then(0)
+                        .otherwise(1)
+                        .asc()
         );
 
-        // 3. 사용자가 요청한 정렬 조건 적용
+        // 2. 사용자가 요청한 정렬 조건 적용
         for (Sort.Order order : sort) {
             Order direction = order.isAscending() ? Order.ASC : Order.DESC;     // 정렬 방향
 
@@ -177,29 +174,14 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
         return orders.toArray(new OrderSpecifier[0]);
     }
 
-    // 친구 여부를 기반으로 CASE WHEN 우선순위 표현식 설정
-    // 이 값을 order by 에서 사용하면 친구가 게시물이 항상 상단에 보임
-    private NumberExpression<Integer> getFriendPriority(Long userId) {
-
-        return new CaseBuilder()
-                .when(getFriendCondition(userId)).then(0)
-                .otherwise(1);
-    }
-
     // 친구 여부 서브쿼리 (로그인한 회원과 게시물 작성자가 친구(ACCEPT)인지 확인)
     private BooleanExpression getFriendCondition(Long userId) {
 
-        return JPAExpressions
-                .selectOne()
-                .from(friends)
-                .where(
-                        friends.status.eq(FriendsStatus.ACCEPT)
-                                .and(
-                                        friends.fromUser.id.eq(userId).and(friends.toUser.id.eq(posts.createdBy.id))
-                                                .or(friends.toUser.id.eq(userId).and(friends.fromUser.id.eq(posts.createdBy.id)))
-                                )
-                )
-                .exists();
+        return friends.status.eq(FriendsStatus.ACCEPT)
+                .and(
+                        friends.fromUser.id.eq(userId).and(friends.toUser.id.eq(posts.createdBy.id))
+                                .or(friends.toUser.id.eq(userId).and(friends.fromUser.id.eq(posts.createdBy.id)))
+                );
     }
 
     // 댓글 개수 서브 쿼리
