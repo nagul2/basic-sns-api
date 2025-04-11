@@ -23,6 +23,13 @@ public class CommentsController {
 
     private final CommentsService commentsService;
 
+    /**
+     * 특정 게시글의 댓글 등록 API
+     *
+     * @param postId           요청한 Posts 테이블의 PK 값
+     * @param createRequestDto 댓글 저장 데이터
+     * @return 성공 시 CommentResponseDto 및 201 응답
+     */
     @PostMapping
     public BaseResponse<CommentResponseDto> createComment(@PathVariable Long postId,
                                                           @RequestBody @Valid CommentCreateRequestDto createRequestDto) {
@@ -32,6 +39,13 @@ public class CommentsController {
         return BaseResponse.success(savedComment, ResultCode.CREATED);
     }
 
+    /**
+     * 특정 게시글의 특정 댓글 조회 API
+     *
+     * @param postId    요청한 Posts 테이블의 PK 값
+     * @param commentId 요청한 Comments 테이블의 PK 값
+     * @return 성공 시 CommentResponseDto 및 200 응답
+     */
     @GetMapping("/{commentId}")
     public BaseResponse<CommentResponseDto> getComment(@PathVariable Long postId, @PathVariable Long commentId) {
 
@@ -40,6 +54,13 @@ public class CommentsController {
         return BaseResponse.success(comment, ResultCode.OK);
     }
 
+    /**
+     * 특정 게시글의 댓글 목록 조회 API
+     *
+     * @param postId   요청한 Posts 테이블의 PK 값
+     * @param pageable 페이징 정보
+     * @return 성공 시 Page된 CommentResponseDto 및 200 응답
+     */
     @GetMapping
     public BaseResponse<PageResponseDto<CommentResponseDto>> getComments(@PathVariable Long postId,
                                                                          @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
@@ -50,6 +71,14 @@ public class CommentsController {
         return BaseResponse.success(comments, ResultCode.OK);
     }
 
+    /**
+     * 특정 게시글의 댓글 수정 API
+     *
+     * @param postId      요청한 Posts 테이블의 PK 값
+     * @param commentId   요청한 Comments 테이블의 PK 값
+     * @param userBaseDto 로그인 된 유저 정보
+     * @return 성공 시 CommentResponseDto 및 200 응답
+     */
     @PutMapping("/{commentId}")
     public BaseResponse<CommentResponseDto> updateComment(@PathVariable Long postId,
                                                           @PathVariable Long commentId,
@@ -61,6 +90,14 @@ public class CommentsController {
         return BaseResponse.success(updatedComment, ResultCode.OK);
     }
 
+    /**
+     * 특정 게시글의 댓글 삭제 API
+     *
+     * @param postId      요청한 Posts 테이블의 PK 값
+     * @param commentId   요청한 Comments 테이블의 PK 값
+     * @param userBaseDto 로그인 된 유저 정보
+     * @return 성공 시 204 응답
+     */
     @DeleteMapping("/{commentId}")
     public BaseResponse<Void> deleteComment(@PathVariable Long postId,
                                             @PathVariable Long commentId,

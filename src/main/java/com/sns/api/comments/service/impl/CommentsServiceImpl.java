@@ -27,6 +27,13 @@ public class CommentsServiceImpl implements CommentsService {
     private final CommentsRepository commentsRepository;
     private final PostsRepository postsRepository;
 
+    /**
+     * 댓글 저장
+     *
+     * @param postId           저장하려는 게시글 PK
+     * @param createRequestDto 저장하려는 댓글 정보
+     * @return 응답 DTO
+     */
     @Transactional
     @Override
     public CommentResponseDto createComment(Long postId, CommentCreateRequestDto createRequestDto) {
@@ -43,6 +50,13 @@ public class CommentsServiceImpl implements CommentsService {
         return CommentResponseDto.fromEntity(savedComment);
     }
 
+    /**
+     * 특정 댓글 조회
+     *
+     * @param postId    조회하려는 게시글 PK
+     * @param commentId 조회하려는 댓글 PK
+     * @return 응답 DTO
+     */
     @Transactional(readOnly = true)
     @Override
     public CommentResponseDto getCommentById(Long postId, Long commentId) {
@@ -55,6 +69,14 @@ public class CommentsServiceImpl implements CommentsService {
         return CommentResponseDto.fromEntity(comment);
     }
 
+    /**
+     * 특정 게시글의 댓글 목록 조회
+     *
+     * @param postId      조회하려는 게시글 PK
+     * @param userBaseDto 로그인된 유저
+     * @param pageable    페이징 정보
+     * @return 응답 DTO
+     */
     @Transactional(readOnly = true)
     @Override
     public PageResponseDto<CommentResponseDto> getCommentsByPost(Long postId, UserBaseDto userBaseDto, Pageable pageable) {
@@ -67,8 +89,9 @@ public class CommentsServiceImpl implements CommentsService {
 
     /**
      * 댓글의 수정은 댓글의 작성자 혹은 게시글의 작성자만 가능
-     * @param userBaseDto 댓글 수정 요청 회원
-     * @param commentId 댓글 ID
+     *
+     * @param userBaseDto      댓글 수정 요청 회원
+     * @param commentId        댓글 ID
      * @param updateRequestDto 댓글 수정 내용
      * @return 수정된 댓글 DTO
      */
@@ -77,7 +100,7 @@ public class CommentsServiceImpl implements CommentsService {
     public CommentResponseDto updateComment(Long postId, Long commentId, CommentUpdateRequestDto updateRequestDto, UserBaseDto userBaseDto) {
 
         Comments comment = getCommentByIdOrElseThrow(commentId);
-        
+
         // 유효성 검사
         validateCommentBelongsToPost(postId, comment);
         validateUpdateOrDeleteAuthority(
@@ -87,14 +110,15 @@ public class CommentsServiceImpl implements CommentsService {
         );
 
         comment.updateComment(updateRequestDto.getContent());
-        
+
         return CommentResponseDto.fromEntity(comment);
     }
 
     /**
      * 댓글의 삭제는 댓글의 작성자 혹은 게시글의 작성자만 가능
+     *
      * @param userBaseDto 댓글 삭제 요청 회원
-     * @param commentId 댓글 ID
+     * @param commentId   댓글 ID
      */
     @Transactional
     @Override
@@ -128,7 +152,8 @@ public class CommentsServiceImpl implements CommentsService {
 
     /**
      * 댓글 수정, 삭제 시 댓글이 게시물에 속하는지 확인하는 메서드
-     * @param postId path variable 로 전달된 게시물 ID
+     *
+     * @param postId  path variable 로 전달된 게시물 ID
      * @param comment 댓글 entity
      */
     public void validateCommentBelongsToPost(Long postId, Comments comment) {
@@ -141,8 +166,9 @@ public class CommentsServiceImpl implements CommentsService {
     /**
      * 댓글의 수정, 삭제를 요청한 회원에게 권한이 있는지 검사하고, 없다면 예외를 발생시키는 메서드
      * 댓글 수정, 삭제는 댓글의 작성자 혹은 게시글의 작성자만 가능하다.
-     * @param userId 요청 회원 ID
-     * @param postWriterId 게시물 작성자 ID
+     *
+     * @param userId          요청 회원 ID
+     * @param postWriterId    게시물 작성자 ID
      * @param commentWriterId 댓글 작성자 ID
      */
     private void validateUpdateOrDeleteAuthority(Long userId, Long postWriterId, Long commentWriterId) {

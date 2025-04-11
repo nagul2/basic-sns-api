@@ -67,6 +67,12 @@ public class UsersServiceImpl implements UsersService {
         return UsersResponseDto.fromEntity(user);
     }
 
+    /**
+     * 회원 탈퇴
+     *
+     * @param requestDto 비밀번호
+     * @param id        로그인 유저 ID
+     */
     @Transactional
     public void deleteMe(Long id, UserDeleteRequestDto requestDto) {
         Users user = findByIdOrElseThrow(id);
@@ -80,6 +86,12 @@ public class UsersServiceImpl implements UsersService {
         usersRepository.delete(user);
     }
 
+    /**
+     * 비밀번호 변경
+     *
+     * @param updateDto 비밀번호 변경 데이터
+     * @param id        로그인 유저 ID
+     */
     @Override
     @Transactional
     public void updatePassword(Long id, PasswordUpdateDto updateDto) {

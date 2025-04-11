@@ -26,6 +26,14 @@ public class LikesServiceImpl implements LikesService {
 
     private final CommentsRepository commentsRepository;
 
+    /**
+     * 댓글 좋아요 요청
+     *
+     * @param likeTypeId  좋아요 누르려는 대상 ID
+     * @param likeType  좋아요 누르려는 대상 Type
+     * @param userBaseDto 로그인 유저 정보
+     * @return 성공 시 LikeResponseDto 반환
+     */
     @Override
     @Transactional
     public LikeResponseDto createLike(Long likeTypeId, LikeType likeType, UserBaseDto userBaseDto) {
@@ -47,6 +55,13 @@ public class LikesServiceImpl implements LikesService {
         return LikeResponseDto.fromEntity(savedLike);
     }
 
+    /**
+     * 댓글 좋아요 삭제
+     *
+     * @param likeTypeId  좋아요 누르려는 대상 ID
+     * @param likeType  좋아요 누르려는 대상 Type
+     * @param userBaseDto 로그인 유저 정보
+     */
     @Override
     @Transactional
     public void deleteLike(Long likeTypeId, LikeType likeType, UserBaseDto userBaseDto) {
@@ -62,6 +77,13 @@ public class LikesServiceImpl implements LikesService {
         likesRepository.delete(likes);
     }
 
+    /**
+     * 댓글 좋아요 수 조회
+     *
+     * @param likeTypeId  좋아요 누르려는 대상 ID
+     * @param likeType  좋아요 누르려는 대상 Type
+     * @return LikeCountResponseDto
+     */
     @Override
     @Transactional(readOnly = true)
     public LikeCountResponseDto countLike(Long likeTypeId, LikeType likeType) {
