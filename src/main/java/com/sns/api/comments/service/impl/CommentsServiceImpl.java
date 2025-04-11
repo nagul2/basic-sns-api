@@ -6,6 +6,7 @@ import com.sns.api.comments.domain.dto.response.CommentResponseDto;
 import com.sns.api.comments.domain.entity.Comments;
 import com.sns.api.comments.repository.CommentsRepository;
 import com.sns.api.comments.service.CommentsService;
+import com.sns.api.common.domain.dto.PageResponseDto;
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.posts.domain.entity.Posts;
 import com.sns.api.posts.repository.PostsRepository;
@@ -56,11 +57,12 @@ public class CommentsServiceImpl implements CommentsService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<CommentResponseDto> getCommentsByPost(Long postId, UserBaseDto userBaseDto, Pageable pageable) {
+    public PageResponseDto<CommentResponseDto> getCommentsByPost(Long postId, UserBaseDto userBaseDto, Pageable pageable) {
 
         Posts post = getPostByIdOrElseThrow(postId);
 
-        return commentsRepository.findAllWithQuery(post.getId(), userBaseDto.getUserId(), pageable);
+        Page<CommentResponseDto> result = commentsRepository.findAllWithQuery(post.getId(), userBaseDto.getUserId(), pageable);
+        return PageResponseDto.toDto(result);
     }
 
     /**

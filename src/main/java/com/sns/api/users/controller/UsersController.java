@@ -1,5 +1,6 @@
 package com.sns.api.users.controller;
 
+import com.sns.api.common.domain.dto.PageResponseDto;
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.users.domain.dto.UserReadResponseDto;
 import com.sns.api.users.domain.dto.UserUpdateRequestDto;
@@ -12,7 +13,6 @@ import com.sns.common.component.Const;
 import com.sns.common.component.ResultCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -83,7 +83,7 @@ public class UsersController {
      * @return 검색된 회원 page 및 200 OK 응답
      */
     @GetMapping
-    public BaseResponse<Page<UserReadResponseDto>> searchUsers(
+    public BaseResponse<PageResponseDto<UserReadResponseDto>> searchUsers(
             @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(required = false) String username, @RequestParam(required = false) String email,
             @SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto) {

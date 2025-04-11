@@ -4,13 +4,13 @@ import com.sns.api.comments.domain.dto.request.CommentCreateRequestDto;
 import com.sns.api.comments.domain.dto.request.CommentUpdateRequestDto;
 import com.sns.api.comments.domain.dto.response.CommentResponseDto;
 import com.sns.api.comments.service.CommentsService;
+import com.sns.api.common.domain.dto.PageResponseDto;
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.common.component.BaseResponse;
 import com.sns.common.component.Const;
 import com.sns.common.component.ResultCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -41,11 +41,11 @@ public class CommentsController {
     }
 
     @GetMapping
-    public BaseResponse<Page<CommentResponseDto>> getComments(@PathVariable Long postId,
-                                                              @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
-                                                              @SessionAttribute(name = Const.LOGIN_USER) UserBaseDto userBaseDto) {
+    public BaseResponse<PageResponseDto<CommentResponseDto>> getComments(@PathVariable Long postId,
+                                                                         @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+                                                                         @SessionAttribute(name = Const.LOGIN_USER) UserBaseDto userBaseDto) {
 
-        Page<CommentResponseDto> comments = commentsService.getCommentsByPost(postId, userBaseDto, pageable);
+        PageResponseDto<CommentResponseDto> comments = commentsService.getCommentsByPost(postId, userBaseDto, pageable);
 
         return BaseResponse.success(comments, ResultCode.OK);
     }

@@ -1,5 +1,6 @@
 package com.sns.api.users.service.impl;
 
+import com.sns.api.common.domain.dto.PageResponseDto;
 import com.sns.api.friends.repository.FriendsRepository;
 import com.sns.api.users.domain.dto.UserReadResponseDto;
 import com.sns.api.users.domain.dto.UserUpdateRequestDto;
@@ -119,18 +120,20 @@ public class UsersServiceImpl implements UsersService {
      * @param username 검색할 회원 이름
      * @param email 검색할 회원 이메일
      * @param userId 로그인한 유저 id
-     * @return 검색된 회원 정보를 담은 dto page
+     * @return 검색된 회원 정보를 담은 PageResponseDto
      */
     @Override
-    public Page<UserReadResponseDto> searchUsers(Pageable pageable, String username, String email, Long userId) {
+    public PageResponseDto<UserReadResponseDto> searchUsers(Pageable pageable, String username, String email, Long userId) {
 
         // 로그인한 유저의 친구 id 목록을 조회
         Set<Long> friendsIds = friendsRepository.findAcceptedFriendsByLoginUserId(userId, Pageable.unpaged()).stream()
                 .map(f -> f.getFromUser().getId().equals(userId) ? f.getToUser().getId() : f.getFromUser().getId())
                 .collect(Collectors.toSet());
 
-        return usersRepository.searchByUsernameAndEmail(pageable, username, email, friendsIds)
+        Page<UserReadResponseDto> result = usersRepository.searchByUsernameAndEmail(pageable, username, email, friendsIds)
                 .map(UserReadResponseDto::fromEntity);
+
+        return PageResponseDto.toDto(result);
     }
 
     /**

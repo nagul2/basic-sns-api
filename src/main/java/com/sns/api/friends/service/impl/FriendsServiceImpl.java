@@ -1,5 +1,6 @@
 package com.sns.api.friends.service.impl;
 
+import com.sns.api.common.domain.dto.PageResponseDto;
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.friends.domain.dto.request.ActionFriendsRequestDto;
 import com.sns.api.friends.domain.dto.request.SendFriendsRequestDto;
@@ -33,10 +34,10 @@ public class FriendsServiceImpl implements FriendsService {
      *
      * @param userBaseDto 로그인 유저 정보
      * @param pageable    페이징 정보
-     * @return 조회된 Page<DTO>
+     * @return 조회된 PageResponseDto<DTO>
      */
     @Override
-    public Page<FindFriendsResponseDto> findAcceptFriends(UserBaseDto userBaseDto, Pageable pageable) {
+    public PageResponseDto<FindFriendsResponseDto> findAcceptFriends(UserBaseDto userBaseDto, Pageable pageable) {
         Long loginUserId = userBaseDto.getUserId();
 
         Page<FindFriendsResponseDto> findAcceptsFriends = friendsRepository.findAcceptedFriendsByLoginUserId(loginUserId, pageable)
@@ -49,7 +50,7 @@ public class FriendsServiceImpl implements FriendsService {
             throw new CustomException(ResultCode.NOT_FOUND, "친구 목록이 존재하지 않습니다.");
         }
 
-        return findAcceptsFriends;
+        return PageResponseDto.toDto(findAcceptsFriends);
     }
 
     /**
@@ -57,10 +58,10 @@ public class FriendsServiceImpl implements FriendsService {
      *
      * @param userBaseDto 로그인 유저 정보
      * @param pageable 페이징 정보
-     * @return 조회된 Page<DTO>
+     * @return 조회된 PageResponseDto<DTO>
      */
     @Override
-    public Page<FindFriendsResponseDto> findReceivedFriends(UserBaseDto userBaseDto, Pageable pageable) {
+    public PageResponseDto<FindFriendsResponseDto> findReceivedFriends(UserBaseDto userBaseDto, Pageable pageable) {
         Long loginUserId = userBaseDto.getUserId();
 
         Page<FindFriendsResponseDto> findReceivedFriends = friendsRepository.findReceivedFriendsByLoginUserId(loginUserId, pageable)
@@ -70,7 +71,7 @@ public class FriendsServiceImpl implements FriendsService {
             throw new CustomException(ResultCode.NOT_FOUND, "받은 친구 목록이 존재하지 않습니다.");
         }
 
-        return findReceivedFriends;
+        return PageResponseDto.toDto(findReceivedFriends);
     }
 
     /**
@@ -78,10 +79,10 @@ public class FriendsServiceImpl implements FriendsService {
      *
      * @param userBaseDto 로그인 유저 정보
      * @param pageable 페이징 정보
-     * @return 조회된 Page<DTO>
+     * @return 조회된 PageResponseDto<DTO>
      */
     @Override
-    public Page<FindFriendsResponseDto> findSentFriends(UserBaseDto userBaseDto, Pageable pageable) {
+    public PageResponseDto<FindFriendsResponseDto> findSentFriends(UserBaseDto userBaseDto, Pageable pageable) {
         Long loginUserId = userBaseDto.getUserId();
 
         Page<FindFriendsResponseDto> findSentFriends = friendsRepository.findSentFriendsByLoginUserId(loginUserId, pageable)
@@ -91,7 +92,7 @@ public class FriendsServiceImpl implements FriendsService {
             throw new CustomException(ResultCode.NOT_FOUND, "보낸 친구 목록이 존재하지 않습니다.");
         }
 
-        return findSentFriends;
+        return PageResponseDto.toDto(findSentFriends);
     }
 
     /**
