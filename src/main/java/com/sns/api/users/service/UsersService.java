@@ -1,11 +1,11 @@
 package com.sns.api.users.service;
 
-import com.sns.api.users.domain.dto.UserReadResponseDto;
-import com.sns.api.users.domain.dto.UserUpdateRequestDto;
-import com.sns.api.users.domain.dto.PasswordUpdateDto;
-import com.sns.api.users.domain.dto.UserDeleteRequestDto;
-import com.sns.api.users.domain.dto.UsersResponseDto;
-import org.springframework.data.domain.Page;
+import com.sns.api.common.domain.dto.PageResponseDto;
+import com.sns.api.users.domain.dto.response.UserReadResponseDto;
+import com.sns.api.users.domain.dto.request.UserUpdateRequestDto;
+import com.sns.api.users.domain.dto.request.PasswordUpdateDto;
+import com.sns.api.users.domain.dto.request.UserDeleteRequestDto;
+import com.sns.api.users.domain.dto.response.UsersResponseDto;
 import org.springframework.data.domain.Pageable;
 
 public interface UsersService {
@@ -16,7 +16,7 @@ public interface UsersService {
 
     UserReadResponseDto findById(Long id);
 
-    Page<UserReadResponseDto> searchUsers(Pageable pageable, String username, String email, Long userId);
+    PageResponseDto<UserReadResponseDto> searchUsers(Pageable pageable, String username, String email, Long userId);
 
     void deleteMe(Long id, UserDeleteRequestDto requestDto);
 

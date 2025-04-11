@@ -1,5 +1,6 @@
 package com.sns.api.follow.service.impl;
 
+import com.sns.api.common.domain.dto.PageResponseDto;
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.follow.domain.dto.request.FollowsRequestDto;
 import com.sns.api.follow.domain.dto.response.FollowsResponseDto;
@@ -62,9 +63,9 @@ public class FollowsServiceImpl implements FollowsService {
     /**
      * 팔로우 취소
      *
-     * @param followId   요청한 follows 테이블의 PK 값
+     * @param followId    요청한 follows 테이블의 PK 값
      * @param userBaseDto 로그인 유저 정보
-     *  팔로잉, 팔로워 둘다 속하지 않으면 exception
+     *                    팔로잉, 팔로워 둘다 속하지 않으면 exception
      */
     @Override
     @Transactional
@@ -86,27 +87,32 @@ public class FollowsServiceImpl implements FollowsService {
      * 로그인한 사용자의 팔로워 조회 로직
      *
      * @param userBaseDto 로그인 유저 정보
-     * @param pageable 페이징 정보
-     * @return 조회된 Page<DTO>
+     * @param pageable    페이징 정보
+     * @return 조회된 PageResponseDto<DTO>
      */
     @Override
     @Transactional(readOnly = true)
-    public Page<FollowsResponseDto> getFollowers(UserBaseDto userBaseDto, Pageable pageable) {
-        return followsRepository.findAllByFollowingIdWithActiveMember(userBaseDto.getUserId(), pageable)
+    public PageResponseDto<FollowsResponseDto> getFollowers(UserBaseDto userBaseDto, Pageable pageable) {
+        Page<FollowsResponseDto> result = followsRepository.findAllByFollowingIdWithActiveMember(userBaseDto.getUserId(), pageable)
                 .map(FollowsResponseDto::fromEntity);
+
+        return PageResponseDto.toDto(result);
     }
 
     /**
      * 로그인한 사용자의 팔로잉 조회 로직
      *
      * @param userBaseDto 로그인 유저 정보
-     * @param pageable 페이징 정보
-     * @return 조회된 Page<DTO>
+     * @param pageable    페이징 정보
+     * @return 조회된 PageResponseDto<DTO>
      */
     @Override
     @Transactional(readOnly = true)
-    public Page<FollowsResponseDto> getFollowings(UserBaseDto userBaseDto, Pageable pageable) {
-        return followsRepository.findAllByFollowerIdWithActiveMember(userBaseDto.getUserId(), pageable)
+    public PageResponseDto<FollowsResponseDto> getFollowings(UserBaseDto userBaseDto, Pageable pageable) {
+        Page<FollowsResponseDto> result = followsRepository.findAllByFollowerIdWithActiveMember(userBaseDto.getUserId(), pageable)
                 .map(FollowsResponseDto::fromEntity);
+
+        return PageResponseDto.toDto(result);
+
     }
 }

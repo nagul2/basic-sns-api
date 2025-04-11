@@ -26,14 +26,15 @@ public class Friends extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "from_user_id")
+    @JoinColumn(name = "from_user_id", nullable = false)
     private Users fromUser;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "to_user_id")
+    @JoinColumn(name = "to_user_id", nullable = false)
     private Users toUser;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private FriendsStatus status;
 
     public void accept() {

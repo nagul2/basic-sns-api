@@ -24,6 +24,13 @@ public class PostLikesController {
 
     private final LikesService likesService;
 
+    /**
+     * 게시글 좋아요 요청
+     *
+     * @param postId      ㅅ게시글 PK
+     * @param userBaseDto 로그인 유저 정보
+     * @return 성공 시 LikeResponseDto 및 201 응답
+     */
     @PostMapping
     public BaseResponse<LikeResponseDto> likePost(@PathVariable Long postId,
                                                   @SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto) {
@@ -31,6 +38,13 @@ public class PostLikesController {
         return BaseResponse.success(likesService.createLike(postId, LikeType.POST, userBaseDto), ResultCode.CREATED);
     }
 
+    /**
+     * 게시글 좋아요 취소
+     *
+     * @param postId      게시글 PK
+     * @param userBaseDto 로그인 유저 정보
+     * @return 성공 시  204 응답
+     */
     @DeleteMapping
     public BaseResponse<Void> unlikePost(@PathVariable Long postId,
                                          @SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto) {
@@ -38,6 +52,12 @@ public class PostLikesController {
         return BaseResponse.success(null, ResultCode.NO_CONTENT);
     }
 
+    /**
+     * 게시글 좋아요 수 조회
+     *
+     * @param postId 게시글 PK
+     * @return 성공 시 LikeCountResponseDto 및 200 응답
+     */
     @GetMapping("/count")
     public BaseResponse<LikeCountResponseDto> countPostLike(@PathVariable Long postId) {
 

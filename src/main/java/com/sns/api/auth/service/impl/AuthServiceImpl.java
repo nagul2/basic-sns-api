@@ -1,10 +1,10 @@
 package com.sns.api.auth.service.impl;
 
-import com.sns.api.auth.domain.dto.LoginRequestDto;
-import com.sns.api.auth.domain.dto.SignupRequestDto;
+import com.sns.api.auth.domain.dto.request.LoginRequestDto;
+import com.sns.api.auth.domain.dto.request.SignupRequestDto;
 import com.sns.api.auth.service.AuthService;
 import com.sns.api.common.domain.dto.UserBaseDto;
-import com.sns.api.users.domain.dto.UsersResponseDto;
+import com.sns.api.users.domain.dto.response.UsersResponseDto;
 import com.sns.api.users.domain.entity.Users;
 import com.sns.api.users.repository.UsersRepository;
 import com.sns.common.component.ResultCode;
@@ -24,6 +24,12 @@ public class AuthServiceImpl implements AuthService {
 
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * 회웝가입
+     *
+     * @param dto  회원 가입 데이터를 ㅡ담은 개체
+     * @return UsersResponseDto
+     */
     @Override
     @Transactional
     public UsersResponseDto signup(SignupRequestDto dto) {
@@ -42,13 +48,15 @@ public class AuthServiceImpl implements AuthService {
         // User 저장
         Users saveUser = usersRepository.save(user);
 
-        if (saveUser.getId() == null) {
-            throw new CustomException(ResultCode.DB_FAIL, "회원 가입에 실패했습니다.");
-        }
-
         return UsersResponseDto.fromEntity(saveUser);
     }
 
+    /**
+     * 로그인
+     *
+     * @param dto  로그인 요청 데이터를 담은 객체
+     * @return UserBaseDto
+     */
     @Override
     @Transactional(readOnly = true)
     public UserBaseDto login(LoginRequestDto dto) {

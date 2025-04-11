@@ -1,4 +1,4 @@
-package com.sns.api.users.domain.dto;
+package com.sns.api.users.domain.dto.response;
 
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.users.domain.entity.MBTI;

@@ -1,7 +1,6 @@
 package com.sns.common.validator;
 
 import com.sns.common.annotation.DateValid;
-import com.sns.common.annotation.PasswordValid;
 import io.micrometer.common.util.StringUtils;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

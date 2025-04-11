@@ -1,4 +1,4 @@
-package com.sns.api.users.domain.dto;
+package com.sns.api.users.domain.dto.request;
 
 import com.sns.common.annotation.DateValid;
 import com.sns.common.annotation.MbtiValid;

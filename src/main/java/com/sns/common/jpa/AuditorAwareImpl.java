@@ -1,7 +1,6 @@
 package com.sns.common.jpa;
 
 import com.sns.api.common.domain.dto.UserBaseDto;
-import com.sns.api.users.domain.dto.UsersResponseDto;
 import com.sns.api.users.domain.entity.Users;
 import com.sns.api.users.repository.UsersRepository;
 import com.sns.common.component.Const;

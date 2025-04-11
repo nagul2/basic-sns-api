@@ -15,4 +15,5 @@ public interface PostQueryRepository {
                                            PostSearchCondition searchCondition,
                                            Pageable pageable);
 
+    Page<PostResponseDto> findMyLikedPosts(Long userId, Pageable pageable);
 }

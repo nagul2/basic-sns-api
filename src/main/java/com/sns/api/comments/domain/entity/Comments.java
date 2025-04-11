@@ -23,7 +23,7 @@ public class Comments extends BaseUserEntity {
     private Long id;            // PK
 
     @ManyToOne
-    @JoinColumn(name = "post_id")
+    @JoinColumn(name = "post_id", nullable = false)
     private Posts post;         // 소속 게시물
     
     @Column(nullable = false)

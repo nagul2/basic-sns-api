@@ -4,7 +4,6 @@ import com.sns.api.friends.domain.entity.Friends;
 import com.sns.api.users.domain.entity.Users;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Range;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -50,7 +49,7 @@ public interface FriendsRepository extends JpaRepository<Friends, Long> {
         select f from Friends f
         where f.toUser.id = :loginUserId
             and f.status = 'PENDING'
-        order by f.toUser.username
+        order by f.fromUser.username
 
     """)
     Page<Friends> findReceivedFriendsByLoginUserId(@Param("loginUserId") Long loginUserId, Pageable pageable);
@@ -68,7 +67,7 @@ public interface FriendsRepository extends JpaRepository<Friends, Long> {
         select f from Friends f
         where f.fromUser.id = :loginUserId
             and f.status = 'PENDING'
-        order by f.fromUser.username
+        order by f.toUser.username
     """)
     Page<Friends> findSentFriendsByLoginUserId(@Param("loginUserId") Long loginUserId, Pageable pageable);
 }

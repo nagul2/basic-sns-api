@@ -1,5 +1,6 @@
 package com.sns.api.follow.controller;
 
+import com.sns.api.common.domain.dto.PageResponseDto;
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.follow.domain.dto.request.FollowsRequestDto;
 import com.sns.api.follow.domain.dto.response.FollowsResponseDto;
@@ -9,7 +10,6 @@ import com.sns.common.component.Const;
 import com.sns.common.component.ResultCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
@@ -54,11 +54,11 @@ public class FollowsController {
      *
      * @param userBaseDto 로그인 유저 정보
      * @param pageable    페이징 정보(기본 5개씩 출력)
-     * @return 조회된 팔로워 Page<DTO> 및 200 응답
+     * @return 조회된 팔로워 PageResponseDto<DTO> 및 200 응답
      */
     @GetMapping("/followers")
-    public BaseResponse<Page<FollowsResponseDto>> getMyFollowers(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto,
-                                                                 @PageableDefault(size = 5) Pageable pageable) {
+    public BaseResponse<PageResponseDto<FollowsResponseDto>> getMyFollowers(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto,
+                                                                            @PageableDefault(size = 5) Pageable pageable) {
         return BaseResponse.success(followsService.getFollowers(userBaseDto, pageable), ResultCode.OK);
     }
 
@@ -67,11 +67,11 @@ public class FollowsController {
      *
      * @param userBaseDto 로그인 유저 정보
      * @param pageable    페이징 정보(기본 5개씩 출력)
-     * @return 조회된 팔로잉 Page<DTO> 및 200 응답
+     * @return 조회된 팔로잉 PageResponseDto<DTO> 및 200 응답
      */
     @GetMapping("/followings")
-    public BaseResponse<Page<FollowsResponseDto>> getMyFollowings(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto,
-                                                                  @PageableDefault(size = 5) Pageable pageable) {
+    public BaseResponse<PageResponseDto<FollowsResponseDto>> getMyFollowings(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto,
+                                                                             @PageableDefault(size = 5) Pageable pageable) {
         return BaseResponse.success(followsService.getFollowings(userBaseDto, pageable), ResultCode.OK);
     }
 }
