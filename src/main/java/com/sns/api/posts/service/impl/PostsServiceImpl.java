@@ -128,6 +128,12 @@ public class PostsServiceImpl implements PostsService {
         postsRepository.delete(post);
     }
 
+    @Override
+    public Page<PostResponseDto> getMyLikedPosts(UserBaseDto userBaseDto, Pageable pageable) {
+
+        return postsRepository.findMyLikedPosts(userBaseDto.getUserId(), pageable);
+    }
+    
 
     private Users getUserByIdOrElseThrow(Long userId) {
 

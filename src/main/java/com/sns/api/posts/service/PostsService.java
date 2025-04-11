@@ -21,4 +21,5 @@ public interface PostsService {
 
     void deletePost(Long postId, UserBaseDto userBaseDto);
 
+    Page<PostResponseDto> getMyLikedPosts(UserBaseDto userBaseDto, Pageable pageable);
 }

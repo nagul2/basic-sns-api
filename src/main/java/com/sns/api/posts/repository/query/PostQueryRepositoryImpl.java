@@ -141,6 +141,39 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
         return PageableExecutionUtils.getPage(results, pageable, countQuery::fetchOne);
     }
 
+    @Override
+    public Page<PostResponseDto> findMyLikedPosts(Long userId, Pageable pageable) {
+
+        List<PostResponseDto> results = queryFactory
+                .select(new QPostResponseDto(
+                        posts.id,
+                        new QUserBaseDto(
+                                users.id,
+                                users.username
+                        ),
+                        posts.content,
+                        getCommentCountSubQuery(),
+                        getLikesCountSubQuery(),
+                        getIsLikedSubQuery(userId),
+                        posts.createdAt,
+                        posts.modifiedAt
+                ))
+                .from(posts)
+                .join(posts.createdBy, users)
+                .join(likes).on(likes.likeTypeId.eq(posts.id))
+                .where(likes.createdBy.id.eq(userId))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory
+                .select(posts.count())
+                .from(posts)
+                .join(likes).on(likes.likeTypeId.eq(posts.id))
+                .where(likes.createdBy.id.eq(userId), likes.likeType.eq(LikeType.POST));
+
+        return PageableExecutionUtils.getPage(results, pageable, countQuery::fetchOne);
+    }
 
     // 정렬 조건 동적 생성 (친구 게시물 항상 우선 + 정렬 조건별 분기)
     private OrderSpecifier<?>[] getOrderSpecifiers(Sort sort, Long userId) {
