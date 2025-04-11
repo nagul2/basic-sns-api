@@ -15,6 +15,7 @@ import com.sns.api.friends.domain.entity.FriendsStatus;
 import com.sns.api.friends.domain.entity.QFriends;
 import com.sns.api.likes.domain.entity.LikeType;
 import com.sns.api.likes.domain.entity.QLikes;
+import com.sns.api.posts.domain.dto.request.PostSearchCondition;
 import com.sns.api.posts.domain.dto.response.PostResponseDto;
 import com.sns.api.posts.domain.dto.response.QPostResponseDto;
 import com.sns.api.posts.domain.entity.QPosts;
@@ -26,7 +27,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -82,31 +82,22 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
      * - 클라이언트가 요청한 정렬 조건에 맞춰 데이터 조회
      * - startDate, endDate 데이터가 유효하지 않으면 기간 전체 범위로 검색
      *
-     * @param userId        로그인한 회원 ID
-     * @param startDate     생성일 기간별 검색 조건 (시작일)
-     * @param endDate       생성일 기간별 검색 조건 (종료일)
-     * @param pageable      page, size, 정렬 조건 등을 가지고 있는 페이징 객체
+     * @param userId            로그인한 회원 ID
+     * @param searchCondition   검색 조건
+     * @param pageable          page, size, 정렬 조건 등을 가지고 있는 페이징 객체
      *
      * @return  게시물/작성자 정보, 댓글 개수, 좋아요 개수, 로그인한 회원의 좋아요 여부 등의 데이터를 포함
      */
     @Override
     public Page<PostResponseDto> findAllWithQuery(Long userId,
-                                                  LocalDateTime startDate,
-                                                  LocalDateTime endDate,
+                                                  PostSearchCondition searchCondition,
                                                   Pageable pageable) {
 
-        // 동적 where 조건 빌더
-        // 추후 이를 활용해 게시물 본문 등을 키워드로 검색할 수도 있다.
-        BooleanBuilder builder = new BooleanBuilder();
-
-        // 생성일 기준 기간별 검색
-        if (startDate != null && endDate != null) {
-            builder.and(posts.createdAt.goe(startDate));
-            builder.and(posts.createdAt.loe(endDate));
-        }
+        // count 쿼리 작성 (페이징 total count 용도)
+        JPAQuery<Long> countQuery = queryFactory.select(posts.count()).from(posts);
 
         // 메인 쿼리
-        List<PostResponseDto> results = queryFactory
+        JPAQuery<PostResponseDto> query = queryFactory
                 .select(new QPostResponseDto(
                         posts.id,
                         new QUserBaseDto(
@@ -121,40 +112,83 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                         posts.modifiedAt
                 ))
                 .from(posts)
-                .join(posts.createdBy, users)
-                .leftJoin(friends)
-                    .on(friends.status.eq(FriendsStatus.ACCEPT)
-                            .and(getFriendCondition(userId)))
-                .where(builder)     // 동적 where 조건 적용
-                .orderBy(getOrderSpecifiers(pageable.getSort(), userId))    // 정렬 조건 적용
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+                .join(posts.createdBy, users);
 
-        // count 쿼리 작성 (페이징 total count 용도)
-        JPAQuery<Long> countQuery = queryFactory
-                .select(posts.count())
-                .from(posts)
-                .where(builder);
+        // 전체 게시물을 조회할지, 친구 게시물만 조회할지, 그 외 사람들의 게시물만 조회할지에 따라 (isOnlyFriends)
+        // 메인 쿼리와 카운트 쿼리의 JOIN 구문이 분기 처리된다.
+        // 차례대로 LEFT JOIN, INNER JOIN, LEFT OUT JOIN
+        if (searchCondition.getIsOnlyFriends() == null) {                   // 전체 게시물 조회
+            query
+                    .leftJoin(friends)
+                    .on(getFriendCondition(userId));
+
+            countQuery
+                    .leftJoin(friends)
+                    .on(getFriendCondition(userId))
+                    .where(getWhereCondition(searchCondition, userId));
+        } else if (searchCondition.getIsOnlyFriends() == Boolean.TRUE) {    // 친구 게시물만 조회하려는 경우
+            query
+                    .innerJoin(friends)
+                    .on(getFriendCondition(userId));
+
+            countQuery
+                    .innerJoin(friends)
+                    .on(getFriendCondition(userId));
+        } else {                                                            // 그 외 사람들의 게시물만 조회하려는 경우
+            query
+                    .leftJoin(friends)
+                    .on(getFriendCondition(userId))
+                    .where(friends.id.isNull());
+
+            countQuery
+                    .leftJoin(friends)
+                    .on(getFriendCondition(userId))
+                    .where(friends.id.isNull());
+        }
+
+        // 쿼리 마무리
+        query
+                .where(getWhereCondition(searchCondition, userId))     // 동적 where 조건 적용
+                .orderBy(getOrderSpecifiers(searchCondition, pageable.getSort()))    // 정렬 조건 적용
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+        countQuery
+                .where(getWhereCondition(searchCondition, userId));
 
         // 페이징 최적화
         // 필요할 때만 count 쿼리 실행함 (ex. 마지막 페이지면 생략 가능)
-        return PageableExecutionUtils.getPage(results, pageable, countQuery::fetchOne);
+        return PageableExecutionUtils.getPage(query.fetch(), pageable, countQuery::fetchOne);
     }
 
+    private BooleanBuilder getWhereCondition(PostSearchCondition searchCondition, Long userId) {
+
+        // 동적 where 조건 빌더
+        // 추후 이를 활용해 게시물 본문 등을 키워드로 검색할 수도 있다.
+        BooleanBuilder builder = new BooleanBuilder();
+
+        // 생성일 기준 기간별 검색
+        if (searchCondition.hasValidValue()) {
+            builder.and(posts.createdAt.goe(searchCondition.getStartDate()));
+            builder.and(posts.createdAt.loe(searchCondition.getEndDate()));
+        }
+
+        return builder;
+    }
 
     // 정렬 조건 동적 생성 (친구 게시물 항상 우선 + 정렬 조건별 분기)
-    private OrderSpecifier<?>[] getOrderSpecifiers(Sort sort, Long userId) {
+    private OrderSpecifier<?>[] getOrderSpecifiers(PostSearchCondition searchCondition, Sort sort) {
 
         List<OrderSpecifier<?>> orders = new ArrayList<>();
 
         // 1. 친구 게시물 우선 정렬
-        orders.add(
-                new CaseBuilder()
-                        .when(friends.id.isNotNull()).then(0)
-                        .otherwise(1)
-                        .asc()
-        );
+        if (searchCondition.getIsOnlyFriends() == null) {
+            orders.add(
+                    new CaseBuilder()
+                            .when(friends.id.isNotNull()).then(0)
+                            .otherwise(1)
+                            .asc()
+            );
+        }
 
         // 2. 사용자가 요청한 정렬 조건 적용
         for (Sort.Order order : sort) {

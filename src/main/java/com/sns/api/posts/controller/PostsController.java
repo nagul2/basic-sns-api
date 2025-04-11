@@ -2,7 +2,7 @@ package com.sns.api.posts.controller;
 
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.posts.domain.dto.request.PostCreateRequestDto;
-import com.sns.api.posts.domain.dto.request.PostSearchRequestDto;
+import com.sns.api.posts.domain.dto.request.PostSearchCondition;
 import com.sns.api.posts.domain.dto.request.PostUpdateRequestDto;
 import com.sns.api.posts.domain.dto.response.PostResponseDto;
 import com.sns.api.posts.domain.dto.response.PostWithCommentsResponseDto;
@@ -53,7 +53,7 @@ public class PostsController {
     /**
      * 게시물 전체 조회 API
      *
-     * @param searchRequestDto  검색 조건 파라미터 (게시물 작성일 범위 등)
+     * @param searchCondition   검색 조건 파라미터 (기간별 검색용 날짜 데이터, 친구 게시물만 조회할지 여부 등)
      * @param pageable          생성일 기준 내림차순이 디폴트
      *                          댓글순(comment), 좋아요순(like), 수정일(modifiedAt) 등 다양한 정렬 조건 사용 가능
      * @param userBaseDto       로그인한 회원 정보
@@ -61,11 +61,11 @@ public class PostsController {
      * @return 성공 시 DTO 및 200 응답
      */
     @GetMapping
-    public BaseResponse<Page<PostResponseDto>> getPosts(@ModelAttribute @Valid PostSearchRequestDto searchRequestDto,
+    public BaseResponse<Page<PostResponseDto>> getPosts(@ModelAttribute @Valid PostSearchCondition searchCondition,
                                                         @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
                                                         @SessionAttribute(name = Const.LOGIN_USER) UserBaseDto userBaseDto) {
 
-        Page<PostResponseDto> posts = postsService.getPosts(searchRequestDto, pageable, userBaseDto);
+        Page<PostResponseDto> posts = postsService.getPosts(searchCondition, pageable, userBaseDto);
 
         return BaseResponse.success(posts, ResultCode.OK);
     }
