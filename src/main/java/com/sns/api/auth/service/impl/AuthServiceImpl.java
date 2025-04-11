@@ -1,10 +1,10 @@
 package com.sns.api.auth.service.impl;
 
-import com.sns.api.auth.domain.dto.LoginRequestDto;
-import com.sns.api.auth.domain.dto.SignupRequestDto;
+import com.sns.api.auth.domain.dto.request.LoginRequestDto;
+import com.sns.api.auth.domain.dto.request.SignupRequestDto;
 import com.sns.api.auth.service.AuthService;
 import com.sns.api.common.domain.dto.UserBaseDto;
-import com.sns.api.users.domain.dto.UsersResponseDto;
+import com.sns.api.users.domain.dto.response.UsersResponseDto;
 import com.sns.api.users.domain.entity.Users;
 import com.sns.api.users.repository.UsersRepository;
 import com.sns.common.component.ResultCode;
