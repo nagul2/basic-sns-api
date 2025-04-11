@@ -4,12 +4,17 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.DateTimeExpression;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sns.api.comments.domain.entity.QComments;
 import com.sns.api.common.domain.dto.QUserBaseDto;
+import com.sns.api.friends.domain.entity.FriendsStatus;
+import com.sns.api.friends.domain.entity.QFriends;
 import com.sns.api.likes.domain.entity.LikeType;
 import com.sns.api.likes.domain.entity.QLikes;
 import com.sns.api.posts.domain.dto.response.PostResponseDto;
@@ -19,10 +24,12 @@ import com.sns.api.users.domain.entity.QUsers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,10 +39,12 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
 
     private final JPAQueryFactory queryFactory;
 
+    // Q 타입 필드 선언
     private final QPosts posts = QPosts.posts;
     private final QUsers users = QUsers.users;
     private final QComments comments = QComments.comments;
     private final QLikes likes = QLikes.likes;
+    private final QFriends friends = QFriends.friends;
 
     /**
      * 게시물 단건 조회
@@ -88,28 +97,15 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                                                   LocalDateTime endDate,
                                                   Pageable pageable) {
 
-        // 정렬 조건 동적 분기
-        OrderSpecifier<?> orderSpecifier = switch (pageable.getSort().toString().split(":")[0]) {
-            case "comment" -> new OrderSpecifier<>(Order.DESC, getCommentCountSubQuery());   // 댓글 많은 순
-            case "like" -> new OrderSpecifier<>(Order.DESC, getLikesCountSubQuery());        // 좋아요 많은 순
-            case "modifiedAt" -> new OrderSpecifier<>(Order.DESC, posts.modifiedAt);         // 수정일 기준 내림차순
-            default -> posts.createdAt.desc();                                               // 기본 (생성일 기준 내림차순)
-        };
-
         // 동적 where 조건 빌더
+        // 추후 이를 활용해 게시물 본문 등을 키워드로 검색할 수도 있다.
         BooleanBuilder builder = new BooleanBuilder();
-        
+
         // 생성일 기준 기간별 검색
         if (startDate != null && endDate != null) {
             builder.and(posts.createdAt.goe(startDate));
             builder.and(posts.createdAt.loe(endDate));
         }
-        
-        // 본문 키워드 검색
-        // TODO: 지금하면 덩치가 커지니 나중에 하자
-//        if (keyword != null && !keyword.isBlank()) {
-//            builder.and(posts.content.containsIgnoreCase(keyword));
-//        }
 
         // 메인 쿼리
         List<PostResponseDto> results = queryFactory
@@ -128,13 +124,13 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                 ))
                 .from(posts)
                 .join(posts.createdBy, users)
-                .where(builder)
-                .orderBy(orderSpecifier)
+                .where(builder)     // 동적 where 조건 적용
+                .orderBy(getOrderSpecifiers(pageable.getSort(), userId))    // 정렬 조건 적용
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        // 카운트 쿼리
+        // count 쿼리 작성 (페이징 total count 용도)
         JPAQuery<Long> countQuery = queryFactory
                 .select(posts.count())
                 .from(posts)
@@ -145,8 +141,70 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
         return PageableExecutionUtils.getPage(results, pageable, countQuery::fetchOne);
     }
 
+
+    // 정렬 조건 동적 생성 (친구 게시물 항상 우선 + 정렬 조건별 분기)
+    private OrderSpecifier<?>[] getOrderSpecifiers(Sort sort, Long userId) {
+
+        List<OrderSpecifier<?>> orders = new ArrayList<>();
+
+        // 1. 친구 우선 정렬 (CASE WHEN THEN 0 ELSE 1 ASC)
+        orders.add(getFriendPriority(userId).asc());
+        // 2. 친구라면 createdAt 기준 최신순 정렬
+        orders.add(
+                new OrderSpecifier<>(
+                        Order.DESC,
+                        new CaseBuilder()
+                                .when(getFriendCondition(userId)).then(posts.createdAt)
+                                .otherwise((DateTimeExpression<LocalDateTime>) null)
+                )
+        );
+
+        // 3. 사용자가 요청한 정렬 조건 적용
+        for (Sort.Order order : sort) {
+            Order direction = order.isAscending() ? Order.ASC : Order.DESC;     // 정렬 방향
+
+            switch (order.getProperty()) {
+                case "comment" -> orders.add(new OrderSpecifier<>(direction, getCommentCountSubQuery()));   // 댓글 기준 정렬
+                case "like" -> orders.add(new OrderSpecifier<>(direction, getLikesCountSubQuery()));        // 좋아요 기준 정렬
+                case "createdAt" -> orders.add(new OrderSpecifier<>(direction, posts.createdAt));           // 생성일 기준 정렬
+                case "modifiedAt" -> orders.add(new OrderSpecifier<>(direction, posts.modifiedAt));         // 수정일 기준 정렬
+                default -> orders.add(posts.createdAt.desc());                                              // 기본값: 생성일 기준 내림차순
+            }
+        }
+
+        // List -> 배열로 바꾸는 자바의 일반적인 패턴
+        // new T[0]과 같은 빈 배열을 넘기면, 자바가 그 타입을 기준으로 적절한 크기의 배열을 만을어서 반환한다.
+        return orders.toArray(new OrderSpecifier[0]);
+    }
+
+    // 친구 여부를 기반으로 CASE WHEN 우선순위 표현식 설정
+    // 이 값을 order by 에서 사용하면 친구가 게시물이 항상 상단에 보임
+    private NumberExpression<Integer> getFriendPriority(Long userId) {
+
+        return new CaseBuilder()
+                .when(getFriendCondition(userId)).then(0)
+                .otherwise(1);
+    }
+
+    // 친구 여부 서브쿼리 (로그인한 회원과 게시물 작성자가 친구(ACCEPT)인지 확인)
+    private BooleanExpression getFriendCondition(Long userId) {
+
+        return JPAExpressions
+                .selectOne()
+                .from(friends)
+                .where(
+                        friends.status.eq(FriendsStatus.ACCEPT)
+                                .and(
+                                        friends.fromUser.id.eq(userId).and(friends.toUser.id.eq(posts.createdBy.id))
+                                                .or(friends.toUser.id.eq(userId).and(friends.fromUser.id.eq(posts.createdBy.id)))
+                                )
+                )
+                .exists();
+    }
+
     // 댓글 개수 서브 쿼리
     private JPQLQuery<Long> getCommentCountSubQuery() {
+
         return JPAExpressions.select(comments.count())
                 .from(comments)
                 .where(comments.post.eq(posts));
@@ -154,6 +212,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
 
     // 좋아요 개수 서브 쿼리
     private JPQLQuery<Long> getLikesCountSubQuery() {
+
         return JPAExpressions.select(likes.count())
                 .from(likes)
                 .where(likeCountCondition(likes, posts));
@@ -161,18 +220,23 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
 
     // 좋아요 여부 서브 쿼리
     private BooleanExpression getIsLikedSubQuery(Long userId) {
+
         return JPAExpressions.selectOne()
                 .from(likes)
                 .where(likedByMeCondition(likes, userId))
                 .exists();
     }
 
+    // 좋아요 수 계산 조건
     private BooleanExpression likeCountCondition(QLikes likes, QPosts posts) {
+
         return likes.likeType.eq(LikeType.POST)
                 .and(likes.likeTypeId.eq(posts.id));
     }
 
+    // 로그인한 유저가 해당 게시글에 좋아요 눌렀는지 여부
     private BooleanExpression likedByMeCondition(QLikes likes, Long userId) {
+
         return likes.likeType.eq(LikeType.POST)
                 .and(likes.likeTypeId.eq(posts.id))
                 .and(likes.createdBy.id.eq(userId));
