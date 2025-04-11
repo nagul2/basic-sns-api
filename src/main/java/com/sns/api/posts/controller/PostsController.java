@@ -60,6 +60,7 @@ public class PostsController {
      *                          
      * @return 성공 시 DTO 및 200 응답
      */
+//    @LogExecutionTime(method = HttpMethod.GET, desc = "게시물 목록 조회")
     @GetMapping
     public BaseResponse<Page<PostResponseDto>> getPosts(@ModelAttribute @Valid PostSearchCondition searchCondition,
                                                         @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
