@@ -1,5 +1,6 @@
 package com.sns.api.users.controller;
 
+import com.sns.api.common.domain.dto.PageResponseDto;
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.users.domain.dto.response.UserReadResponseDto;
 import com.sns.api.users.domain.dto.request.UserUpdateRequestDto;
@@ -12,7 +13,6 @@ import com.sns.common.component.Const;
 import com.sns.common.component.ResultCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -50,7 +50,7 @@ public class UsersController {
     /**
      * 내 정보 수정 API
      *
-     * @param userDto 로그인 유저 정보
+     * @param userDto   로그인 유저 정보
      * @param updateDto 수정할 정보
      * @return 수정된 내 정보 및 200 OK 응답
      */
@@ -76,14 +76,14 @@ public class UsersController {
     /**
      * 회원 검색 API
      *
-     * @param pageable 페이징 정보
-     * @param username 검색할 회원 이름
-     * @param email 검색할 회원 이메일
+     * @param pageable    페이징 정보
+     * @param username    검색할 회원 이름
+     * @param email       검색할 회원 이메일
      * @param userBaseDto 로그인 유저 정보
      * @return 검색된 회원 page 및 200 OK 응답
      */
     @GetMapping
-    public BaseResponse<Page<UserReadResponseDto>> searchUsers(
+    public BaseResponse<PageResponseDto<UserReadResponseDto>> searchUsers(
             @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
             @RequestParam(required = false) String username, @RequestParam(required = false) String email,
             @SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto) {
@@ -92,6 +92,13 @@ public class UsersController {
                 ResultCode.OK);
     }
 
+    /**
+     * 회원 탈퇴 API
+     *
+     * @param requestDto 비밀번호
+     * @param dto        로그인 유저 정보
+     * @return 성공 시 세션 초기화 및 204 응답
+     */
     @DeleteMapping("/me")
     public BaseResponse<Object> deleteMe(@RequestBody @Valid UserDeleteRequestDto requestDto
             , @SessionAttribute(Const.LOGIN_USER) UserBaseDto dto, HttpServletRequest request) {
@@ -105,6 +112,13 @@ public class UsersController {
         return BaseResponse.success(null, ResultCode.NO_CONTENT);
     }
 
+    /**
+     * 비밀번호 변경 API
+     *
+     * @param updateDto 비밀번호 변경 데이터
+     * @param dto        로그인 유저 정보
+     * @return 성공 시 200 응답
+     */
     @PutMapping("/me/password")
     public BaseResponse<Object> updatePassword(@RequestBody @Valid PasswordUpdateDto updateDto
             , @SessionAttribute(Const.LOGIN_USER) UserBaseDto dto) {

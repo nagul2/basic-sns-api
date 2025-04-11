@@ -1,5 +1,6 @@
 package com.sns.api.friends.controller;
 
+import com.sns.api.common.domain.dto.PageResponseDto;
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.friends.domain.dto.request.ActionFriendsRequestDto;
 import com.sns.api.friends.domain.dto.request.SendFriendsRequestDto;
@@ -11,7 +12,6 @@ import com.sns.common.component.Const;
 import com.sns.common.component.ResultCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
@@ -28,11 +28,11 @@ public class FriendsController {
      *
      * @param userBaseDto 로그인 유저 정보
      * @param pageable 페이징 정보(기본 5개씩 출력)
-     * @return 조회된 친구 Page<DTO> 및 200 응답
+     * @return 조회된 친구 PageResponseDto<DTO> 및 200 응답
      */
     @GetMapping("/me")
-    public BaseResponse<Page<FindFriendsResponseDto>> findAcceptFriends(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto,
-                                                                        @PageableDefault(size = 5) Pageable pageable) {
+    public BaseResponse<PageResponseDto<FindFriendsResponseDto>> findAcceptFriends(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto,
+                                                                                   @PageableDefault(size = 5) Pageable pageable) {
         return BaseResponse.success(friendsService.findAcceptFriends(userBaseDto, pageable), ResultCode.OK);
     }
 
@@ -41,10 +41,10 @@ public class FriendsController {
      *
      * @param userBaseDto 로그인 유저 정보
      * @param pageable 페이징 정보(기본 5개씩 출력)
-     * @return 조회된 받은 친구 요청 Page<DTO> 및 200 응답
+     * @return 조회된 받은 친구 요청 PageResponseDto<DTO> 및 200 응답
      */
     @GetMapping("/request/received")
-    public BaseResponse<Page<FindFriendsResponseDto>> findReceivedFriends(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto,
+    public BaseResponse<PageResponseDto<FindFriendsResponseDto>> findReceivedFriends(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto,
                                                                         @PageableDefault(size = 5) Pageable pageable) {
         return BaseResponse.success(friendsService.findReceivedFriends(userBaseDto, pageable), ResultCode.OK);
     }
@@ -54,10 +54,10 @@ public class FriendsController {
      *
      * @param userBaseDto 로그인 유저 정보
      * @param pageable 페이징 정보(기본 5개씩 출력)
-     * @return 조회된 보낸 친구 요청 Page<DTO> 및 200 응답
+     * @return 조회된 보낸 친구 요청 PageResponseDto<DTO> 및 200 응답
      */
     @GetMapping("/request/sent")
-    public BaseResponse<Page<FindFriendsResponseDto>> findSentFriends(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto,
+    public BaseResponse<PageResponseDto<FindFriendsResponseDto>> findSentFriends(@SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto,
                                                                         @PageableDefault(size = 5) Pageable pageable) {
         return BaseResponse.success(friendsService.findSentFriends(userBaseDto, pageable), ResultCode.OK);
     }

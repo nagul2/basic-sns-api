@@ -24,6 +24,12 @@ public class AuthServiceImpl implements AuthService {
 
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * 회웝가입
+     *
+     * @param dto  회원 가입 데이터를 ㅡ담은 개체
+     * @return UsersResponseDto
+     */
     @Override
     @Transactional
     public UsersResponseDto signup(SignupRequestDto dto) {
@@ -45,6 +51,12 @@ public class AuthServiceImpl implements AuthService {
         return UsersResponseDto.fromEntity(saveUser);
     }
 
+    /**
+     * 로그인
+     *
+     * @param dto  로그인 요청 데이터를 담은 객체
+     * @return UserBaseDto
+     */
     @Override
     @Transactional(readOnly = true)
     public UserBaseDto login(LoginRequestDto dto) {

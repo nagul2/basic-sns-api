@@ -24,6 +24,13 @@ public class CommentLikesController {
 
     private final LikesService likesService;
 
+    /**
+     * 댓글 좋아요 요청
+     *
+     * @param commentId   댓글 PK
+     * @param userBaseDto 로그인 유저 정보
+     * @return 성공 시 LikeResponseDto 및 201 응답
+     */
     @PostMapping
     public BaseResponse<LikeResponseDto> likeComment(@PathVariable Long commentId,
                                                      @SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto) {
@@ -32,6 +39,13 @@ public class CommentLikesController {
                 ResultCode.CREATED);
     }
 
+    /**
+     * 댓글 좋아요 취소
+     *
+     * @param commentId   댓글 PK
+     * @param userBaseDto 로그인 유저 정보
+     * @return 성공 시  204 응답
+     */
     @DeleteMapping
     public BaseResponse<Void> unlikeComment(@PathVariable Long commentId,
                                             @SessionAttribute(Const.LOGIN_USER) UserBaseDto userBaseDto) {
@@ -40,6 +54,12 @@ public class CommentLikesController {
         return BaseResponse.success(null, ResultCode.NO_CONTENT);
     }
 
+    /**
+     * 댓글 좋아요 수 조회
+     *
+     * @param commentId 댓글 PK
+     * @return 성공 시 LikeCountResponseDto 및 200 응답
+     */
     @GetMapping("/count")
     public BaseResponse<LikeCountResponseDto> countCommentLike(@PathVariable Long commentId) {
 
