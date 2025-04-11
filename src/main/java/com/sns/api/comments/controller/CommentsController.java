@@ -42,9 +42,10 @@ public class CommentsController {
 
     @GetMapping
     public BaseResponse<Page<CommentResponseDto>> getComments(@PathVariable Long postId,
-                                                              @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+                                                              @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+                                                              @SessionAttribute(name = Const.LOGIN_USER) UserBaseDto userBaseDto) {
 
-        Page<CommentResponseDto> comments = commentsService.getCommentsByPost(pageable, postId);
+        Page<CommentResponseDto> comments = commentsService.getCommentsByPost(postId, userBaseDto, pageable);
 
         return BaseResponse.success(comments, ResultCode.OK);
     }

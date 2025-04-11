@@ -13,7 +13,7 @@ public interface CommentsService {
 
     CommentResponseDto getCommentById(Long postId, Long commentId);
 
-    Page<CommentResponseDto> getCommentsByPost(Pageable pageable, Long postId);
+    Page<CommentResponseDto> getCommentsByPost(Long postId, UserBaseDto userBaseDto, Pageable pageable);
 
     CommentResponseDto updateComment(Long postId, Long commentId, CommentUpdateRequestDto updateRequestDto, UserBaseDto userBaseDto);
 
