@@ -48,12 +48,18 @@ public class DummyDataInit {
     Random random = new Random();
     Faker koFaker = new Faker((new Locale("ko")));
 
-    // 1. 회원 25개 생성
+    // 1. 회원 26개 생성 - 고정1명 + 랜덤 25명
     @EventListener(ApplicationReadyEvent.class)
     @Order(1)
     public void initUsers() {
         List<Users> users = new ArrayList<>();
-
+        users.add(new Users(
+                "test0@kakao.com",
+                "십사조",
+                passwordEncoder.encode("qwer1234!@#$"),
+                "1992-10-15",
+                "intp"
+        ));
         for (int i = 1; i <= 25; i++) {
 
             int randomEmailDomain = random.nextInt(EMAIL_DOMAINS.length);
@@ -77,14 +83,9 @@ public class DummyDataInit {
         }
 
         List<Users> savedUsers = usersRepository.saveAll(users);
-        log.info("저장 유저 개수: {}", savedUsers.size());
-        for (Users savedUser : savedUsers) {
-            log.info("저장된 유저 이메일: {}", savedUser.getEmail());
-            log.info("저장된 유저 이름: {}", savedUser.getUsername());
-        }
     }
 
-    // 2. 게시글 추가 랜덤 회원이 35개 작성
+    // 2. 게시글 추가 랜덤 회원이 103 작성
     @EventListener(ApplicationReadyEvent.class)
     @Order(2)
     public void initPosts() {
@@ -102,12 +103,6 @@ public class DummyDataInit {
         }
 
         List<Posts> savedPosts = postsRepository.saveAll(posts);
-
-        log.info("저장 게시글 개수: {}", savedPosts.size());
-        for (Posts savedPost : savedPosts) {
-            log.info("저장된 게시글 내용: {}", savedPost.getContent());
-            log.info("게시글 유저 이름: {}", savedPost.getCreatedBy().getUsername());
-        }
     }
 
     // 3: 특정 게시글의 댓글 작성, 게시글마다 0 ~ 30개, 랜덤 회원이 작성
@@ -133,13 +128,6 @@ public class DummyDataInit {
         }
 
         List<Comments> savedComments = commentsRepository.saveAll(comments);
-
-        log.info("저장 댓글 개수: {}", savedComments.size());
-        for (Comments savedComment : savedComments) {
-            log.info("게시글 번호: {}", savedComment.getPost().getId());
-            log.info("저장된 댓글 내용: {}", savedComment.getContent());
-            log.info("댓글 유저 이름: {}", savedComment.getCreatedBy().getUsername());
-        }
     }
 
     // 4. 친구 요청 랜덤 생성
@@ -151,7 +139,7 @@ public class DummyDataInit {
         Set<String> existingFriendPairs = new HashSet<>();
 
         for (Users user : users) {
-            int randomFriendsCount = random.nextInt(10);
+            int randomFriendsCount = random.nextInt(15);
             for (int i = 0; i < randomFriendsCount; i++) {
                 Users receiverUser = users.get(random.nextInt(users.size()));
 
@@ -177,12 +165,6 @@ public class DummyDataInit {
             }
         }
         List<Friends> savedFriends = friendsRepository.saveAll(friends);
-
-        log.info("저장 좋아요 개수: {}", savedFriends.size());
-        for (Friends savedFriend : savedFriends) {
-            log.info("보낸 친구: {}", savedFriend.getFromUser().getUsername());
-            log.info("받은 친구: {}", savedFriend.getFromUser().getUsername());
-        }
     }
 
 
@@ -195,7 +177,7 @@ public class DummyDataInit {
         Set<String> existingFollowPair = new HashSet<>();
 
         for (Users follower : users) {
-            int randomFollowCount = random.nextInt(5);
+            int randomFollowCount = random.nextInt(10);
             for (int i = 0; i < randomFollowCount; i++) {
                 Users randomFollowing = users.get(random.nextInt(users.size()));
 
@@ -216,14 +198,7 @@ public class DummyDataInit {
                 follows.add(follow);
             }
         }
-
         List<Follows> savedFollows = followsRepository.saveAll(follows);
-        log.info("저장 팔로우 개수: {}", savedFollows.size());
-        for (Follows savedFollow : savedFollows) {
-            log.info("팔로워: {}", savedFollow.getFollower());
-            log.info("팔로잉: {}", savedFollow.getFollowing());
-        }
-
     }
 
     // 6.랜덤한 댓글, 게시글에 랜덤 회원이 좋아요 클릭
@@ -257,7 +232,7 @@ public class DummyDataInit {
 
         // 댓글 좋아요
         for (Comments comment : comments) {
-            int randomCommentLikeCount = random.nextInt(8);
+            int randomCommentLikeCount = random.nextInt(10);
             for (int i = 0; i < randomCommentLikeCount; i++) {
                 Users randomUser = users.get(random.nextInt(users.size()));
                 String key = "댓글" + comment.getId() + ":" + randomUser.getId();
@@ -273,12 +248,6 @@ public class DummyDataInit {
         }
 
         List<Likes> savedLikes = likesRepository.saveAll(likes);
-        log.info("저장 좋아요 수: {}", savedLikes.size());
-        for (Likes savedLike : savedLikes) {
-            log.info("좋아요 타입: {}", savedLike.getLikeType());
-            log.info("좋아요 누른 유저 이름: {}", savedLike.getCreatedBy());
-        }
-
     }
 }
 
