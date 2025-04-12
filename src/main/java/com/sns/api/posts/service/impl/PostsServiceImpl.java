@@ -2,6 +2,7 @@ package com.sns.api.posts.service.impl;
 
 import com.sns.api.comments.domain.dto.response.CommentResponseDto;
 import com.sns.api.comments.repository.CommentsRepository;
+import com.sns.api.common.domain.dto.PageResponseDto;
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.posts.domain.dto.request.PostCreateRequestDto;
 import com.sns.api.posts.domain.dto.request.PostSearchCondition;
@@ -87,9 +88,10 @@ public class PostsServiceImpl implements PostsService {
      */
     @Transactional(readOnly = true)
     @Override
-    public Page<PostResponseDto> getPosts(PostSearchCondition searchCondition, Pageable pageable, UserBaseDto userBaseDto) {
+    public PageResponseDto<PostResponseDto> getPosts(PostSearchCondition searchCondition, Pageable pageable, UserBaseDto userBaseDto) {
 
-        return postsRepository.findAllWithQuery(userBaseDto.getUserId(), searchCondition, pageable);
+        Page<PostResponseDto> posts = postsRepository.findAllWithQuery(userBaseDto.getUserId(), searchCondition, pageable);
+        return PageResponseDto.toDto(posts);
     }
 
     @Transactional

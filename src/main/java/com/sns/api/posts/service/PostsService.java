@@ -1,5 +1,6 @@
 package com.sns.api.posts.service;
 
+import com.sns.api.common.domain.dto.PageResponseDto;
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.posts.domain.dto.request.PostCreateRequestDto;
 import com.sns.api.posts.domain.dto.request.PostSearchCondition;
@@ -15,7 +16,7 @@ public interface PostsService {
 
     PostWithCommentsResponseDto getPostById(Long postId, UserBaseDto userBaseDto);
 
-    Page<PostResponseDto> getPosts(PostSearchCondition searchRequestDto, Pageable pageable, UserBaseDto userBaseDto);
+    PageResponseDto<PostResponseDto> getPosts(PostSearchCondition searchRequestDto, Pageable pageable, UserBaseDto userBaseDto);
 
     PostResponseDto updatePost(Long postId, PostUpdateRequestDto updateRequestDto, UserBaseDto userBaseDto);
 
