@@ -1,5 +1,6 @@
 package com.sns.api.posts.controller;
 
+import com.sns.api.common.domain.dto.PageResponseDto;
 import com.sns.api.common.domain.dto.UserBaseDto;
 import com.sns.api.posts.domain.dto.request.PostCreateRequestDto;
 import com.sns.api.posts.domain.dto.request.PostSearchCondition;
@@ -12,7 +13,6 @@ import com.sns.common.component.Const;
 import com.sns.common.component.ResultCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -62,11 +62,11 @@ public class PostsController {
      */
 //    @LogExecutionTime(method = HttpMethod.GET, desc = "게시물 목록 조회")
     @GetMapping
-    public BaseResponse<Page<PostResponseDto>> getPosts(@ModelAttribute @Valid PostSearchCondition searchCondition,
-                                                        @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
-                                                        @SessionAttribute(name = Const.LOGIN_USER) UserBaseDto userBaseDto) {
+    public BaseResponse<PageResponseDto<PostResponseDto>> getPosts(@ModelAttribute @Valid PostSearchCondition searchCondition,
+                                                                   @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+                                                                   @SessionAttribute(name = Const.LOGIN_USER) UserBaseDto userBaseDto) {
 
-        Page<PostResponseDto> posts = postsService.getPosts(searchCondition, pageable, userBaseDto);
+        PageResponseDto<PostResponseDto> posts = postsService.getPosts(searchCondition, pageable, userBaseDto);
 
         return BaseResponse.success(posts, ResultCode.OK);
     }
