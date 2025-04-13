@@ -181,6 +181,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                 .join(posts.createdBy, users)
                 .join(likes).on(likes.likeTypeId.eq(posts.id))
                 .where(likes.createdBy.id.eq(userId))
+                .orderBy(posts.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
