@@ -179,7 +179,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                 ))
                 .from(posts)
                 .join(posts.createdBy, users)
-                .join(likes).on(likes.likeTypeId.eq(posts.id))
+                .join(likes).on(likes.likeTypeId.eq(posts.id), likes.likeType.eq(LikeType.POST))
                 .where(likes.createdBy.id.eq(userId))
                 .orderBy(posts.createdAt.desc())
                 .offset(pageable.getOffset())
